@@ -1,0 +1,43 @@
+github:
+  enabled: true
+  api_token: ""
+
+twitter:
+  enabled: true
+  bearer_token: "YOUR_TWITTER_BEARER_TOKEN_HERE"
+
+linkedin:
+  enabled: true
+
+virustotal:
+  enabled: true
+  api_key: "YOUR_VIRUSTOTAL_TOKEN_HERE"  # Get free key at virustotal.com
+
+shodan:
+  enabled: true
+  api_key: "YOUR_SHODAN_KEY"      # Get free key at shodan.io
+
+ipgeolocation:
+  enabled: true
+
+whois_history:
+  enabled: false  # Optional (requires paid SecurityTrails key)
+
+archiveorg:
+  enabled: true
+
+neo4j:
+  uri: "bolt://localhost:7687"
+  username: "neo4j"
+  password: "password"
+  database: "neo4j"
+
+hibp:
+  enabled: true
+  mock_mode: true
+
+redaction:
+  redact_emails: true
+  preserve_internal_ips: true
+  allowlist_domains:
+    - "your-company.com"
