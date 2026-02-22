@@ -1,0 +1,163 @@
+Metadata-Version: 2.4
+Name: foep
+Version: 0.1.0
+Summary: Forensic OSINT-to-Evidence Pipeline: Unified framework for correlating digital forensics and open-source intelligence
+Home-page: https://github.com/your-org/foep
+Author: FOEP Development Team
+Author-email: foep-team@example.com
+License: MIT
+Project-URL: Documentation, https://github.com/your-org/foep/blob/main/README.md
+Project-URL: Source, https://github.com/your-org/foep
+Project-URL: Tracker, https://github.com/your-org/foep/issues
+Keywords: forensics osint cybersecurity incident-response threat-intelligence
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Legal Industry
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Security
+Classifier: Topic :: System :: Forensics
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pytest>=7.0.0
+Requires-Dist: pytest-cov>=4.0.0
+Requires-Dist: pytest-mock>=3.10.0
+Requires-Dist: black>=23.0.0
+Requires-Dist: mypy>=1.5.0
+Requires-Dist: flake8>=6.0.0
+Requires-Dist: isort>=5.12.0
+Requires-Dist: types-PyYAML>=6.0.0
+Requires-Dist: types-requests>=2.28.0
+Requires-Dist: types-python-dateutil>=2.8.0
+Requires-Dist: sphinx>=7.0.0
+Requires-Dist: sphinx-rtd-theme>=1.2.0
+Requires-Dist: ipython>=8.0.0
+Requires-Dist: jupyter>=1.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Requires-Dist: pytest-mock>=3.10.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: mypy>=1.5.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: types-PyYAML>=6.0.0; extra == "dev"
+Requires-Dist: types-requests>=2.28.0; extra == "dev"
+Requires-Dist: types-python-dateutil>=2.8.0; extra == "dev"
+Requires-Dist: sphinx>=7.0.0; extra == "dev"
+Requires-Dist: sphinx-rtd-theme>=1.2.0; extra == "dev"
+Requires-Dist: ipython>=8.0.0; extra == "dev"
+Requires-Dist: jupyter>=1.0.0; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: project-url
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Forensic OSINT-to-Evidence Pipeline (FOEP)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
+
+FOEP is a novel framework that integrates **digital forensics** and **open-source intelligence (OSINT)** into a unified evidence-handling system. Traditional tools in these domains often operate in isolation—either focusing on internal breach artefacts or external intelligence. FOEP bridges this gap by correlating logs, memory dumps, and disk artefacts with social media traces, leaked databases, and other publicly available intelligence sources.
+
+## ✨ Key Features
+
+- **Unified Evidence Model**: Normalizes forensic and OSINT data into a consistent schema
+- **Graph-Based Correlation**: Links entities across datasets using Neo4j
+- **Credibility Scoring**: Dynamically ranks intelligence by reliability and corroboration
+- **Legal Compliance**: Generates court-admissible reports with automated redaction
+- **Chain of Custody**: Tracks provenance and integrity for all evidence
+- **Modular Architecture**: Supports extensible ingestion, correlation, and reporting
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.10+
+- Neo4j 5+ (for graph correlation)
+- System dependencies for `dfvfs` (see [dfvfs installation](https://github.com/log2timeline/dfvfs#installation))
+
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/foep.git
+cd foep
+
+# Create virtual environment
+python -m venv foep-env
+source foep-env/bin/activate  # Linux/macOS
+# foep-env\Scripts\activate   # Windows
+
+# Install core dependencies
+pip install -r requirements.txt
+
+# Install spaCy model (optional, for name redaction)
+python -m spacy download en_core_web_sm
+
+# Install development dependencies (optional)
+pip install -r requirements-dev.txt
+
+# Install Neo4j
+wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+echo 'deb https://debian.neo4j.com stable 5' | sudo tee /etc/apt/sources.list.d/neo4j.list
+sudo apt update
+sudo apt install -y neo4j
+
+# Start Neo4j
+sudo systemctl start neo4j
+
+# Set password via http://localhost:7474 (default: neo4j/neo4j)
+
+
+
+Basic Investigation Workflow
+
+# Create investigation directory
+mkdir -p investigations/case-001
+cd investigations/case-001
+
+# Step 1: Ingest Evidence
+foep-ingest \
+  --log /path/to/logfile.log \
+  --disk /path/to/disk.img \
+  --memory /path/to/memory.raw \
+  --social "github:username" \
+  --social "twitter:handle" \
+  --breach "email@domain.com" \
+  --code "filename:.env password" \
+  --output evidence.json \
+  --case-id "CASE-001" \
+  --investigator "Your Name"
+
+# Step 2: Correlate Evidence
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id "CASE-001" \
+  --investigator "Your Name"
+
+# Step 3: Generate Report
+foep-report \
+  --input correlated.json \
+  --output reports/ \
+  --case-id "CASE-001" \
+  --investigator "Your Name" \
+  --title "Investigation Report" \
+  --description "Forensic analysis summary" \
+  --format pdf

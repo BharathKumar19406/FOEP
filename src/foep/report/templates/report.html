@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ case_info.title }} - FOEP Forensic Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+        .case-info { background: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .evidence-item { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 4px; }
+        .credibility-high { border-left: 4px solid #28a745; }
+        .credibility-medium { border-left: 4px solid #ffc107; }
+        .credibility-low { border-left: 4px solid #dc3545; }
+        .metadata { font-size: 0.9em; color: #555; margin-top: 8px; }
+        .custody { background: #e9ecef; padding: 15px; margin-top: 30px; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Forensic OSINT-to-Evidence Pipeline (FOEP)</h1>
+        <h2>{{ case_info.title }}</h2>
+        <p>Generated on: {{ generated_at }}</p>
+    </div>
+
+    <div class="case-info">
+        <h3>Case Information</h3>
+        <p><strong>Description:</strong> {{ case_info.description }}</p>
+        <p><strong>Investigator:</strong> {{ case_info.investigator }}</p>
+        {% if case_info.case_id %}<p><strong>Case ID:</strong> {{ case_info.case_id }}</p>{% endif %}
+    </div>
+
+    <div class="summary">
+        <h3>Evidence Summary</h3>
+        <p>Total Items: {{ evidence_summary.total_items }}</p>
+        <p>Unique Entities: {{ evidence_summary.unique_entities }}</p>
+        <p>High-Credibility Items (≥80): {{ evidence_summary.high_credibility_count }}</p>
+        {% if neo4j_explorer_url %}
+        <p><a href="{{ neo4j_explorer_url }}" target="_blank">Explore Evidence Graph in Neo4j Browser</a></p>
+        {% endif %}
+    </div>
+
+    {% for obs_type, items in evidence_by_type.items() %}
+    <h3>{{ obs_type.replace('_', ' ').title() }} ({{ items|length }})</h3>
+    {% for item in items %}
+    <div class="evidence-item 
+        {% if item.credibility_score >= 80 %}credibility-high
+        {% elif item.credibility_score >= 50 %}credibility-medium
+        {% else %}credibility-low{% endif %}">
+        <p><strong>Entity:</strong> {{ item.entity_value }}</p>
+        <p><strong>Type:</strong> {{ item.entity_type.value }}</p>
+        <p><strong>Source:</strong> {{ item.source }}</p>
+        <p><strong>Credibility:</strong> {{ item.credibility_score }}/100</p>
+        {% if item.metadata %}
+        <div class="metadata">
+            <strong>Meta</strong>
+            <table>
+                {% for key, value in item.metadata.items() %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>
+                        {% if value is mapping %}
+                            {{ value|tojson(indent=2)|safe }}
+                        {% elif value is iterable and value is not string %}
+                            {{ value|join(', ') }}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endfor %}
+
+    {% if custody_info %}
+    <div class="custody">
+        <h3>Chain of Custody</h3>
+        <p><strong>Investigator:</strong> {{ custody_info.investigator }}</p>
+        <p><strong>Organization:</strong> {{ custody_info.organization }}</p>
+        <p><strong>Tool:</strong> {{ tool_info.name }} v{{ tool_info.version }}</p>
+        <p><strong>Generated At:</strong> {{ custody_info.custody_timestamp }}</p>
+        {% if custody_info.input_hashes %}
+        <p><strong>Input Hashes:</strong></p>
+        <ul>
+            {% for path, hash in custody_info.input_hashes.items() %}
+            <li>{{ path }}: {{ hash }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>

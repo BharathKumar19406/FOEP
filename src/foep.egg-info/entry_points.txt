@@ -1,0 +1,4 @@
+[console_scripts]
+foep-correlate = scripts.foep_correlate:main
+foep-ingest = scripts.foep_ingest:main
+foep-report = scripts.foep_report:main
