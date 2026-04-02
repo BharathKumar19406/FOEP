@@ -15,6 +15,11 @@ from foep.ingest.forensic import (
 from foep.ingest.osint.social import collect_social_osint
 from foep.ingest.osint.breaches import collect_breach_osint
 from foep.ingest.osint.code_repos import collect_code_repo_osint
+from foep.ingest.threat_utils import (
+    ThreatDetectionIngest,
+    enrich_evidence_with_threat_intel,
+    create_threat_summary,
+)
 from foep.normalize.schema import Evidence, ObservationType
 from foep.correlate.extractor import extract_identifiers
 from foep.correlate.linker import link_entities
@@ -52,6 +57,38 @@ class FOEPPipeline:
             organization=config.case_defaults.get("organization", "Unknown Org"),
         )
         self.all_evidence: List[Evidence] = []
+        self.threat_detections: Dict[str, Any] = {}  # Store threat analysis results
+
+    def _apply_threat_detection_to_evidence(self, evidence_list: List[Evidence]) -> List[Evidence]:
+        """
+        Apply threat detection to evidence items during ingestion.
+        
+        Args:
+            evidence_list: List of evidence to analyze
+            
+        Returns:
+            Evidence list enriched with threat intelligence metadata
+        """
+        enriched_evidence = []
+        
+        for evidence in evidence_list:
+            try:
+                enriched = enrich_evidence_with_threat_intel(evidence)
+                enriched_evidence.append(enriched)
+                
+                # Log if threat detected
+                if enriched.metadata and 'threat_intel' in enriched.metadata:
+                    threat_info = enriched.metadata['threat_intel']
+                    logger.warning(
+                        f"Threat detected in {evidence.entity_value}: "
+                        f"{threat_info['threat_level']} ({threat_info['threat_score']}%)"
+                    )
+                    
+            except Exception as e:
+                logger.debug(f"Error applying threat detection to {evidence.evidence_id}: {e}")
+                enriched_evidence.append(evidence)
+        
+        return enriched_evidence
 
     def run_forensic_ingestion(
         self,
@@ -62,6 +99,8 @@ class FOEPPipeline:
     ) -> List[Evidence]:
         """
         Ingest forensic artefacts from disk, memory, and logs.
+        
+        Applies threat detection to collected evidence during ingestion.
 
         Args:
             disk_images: List of disk image paths (E01, RAW, etc.)
@@ -115,6 +154,10 @@ class FOEPPipeline:
                 except Exception as e:
                     logger.error(f"Failed to ingest log directory {log_dir}: {e}")
 
+        # Apply threat detection to forensic evidence
+        logger.info(f"Analyzing {len(evidence)} forensic artifacts for threats...")
+        evidence = self._apply_threat_detection_to_evidence(evidence)
+
         logger.info(
             f"Forensic ingestion complete. Collected {len(evidence)} artefacts."
         )
@@ -129,6 +172,8 @@ class FOEPPipeline:
     ) -> List[Evidence]:
         """
         Collect OSINT from social media, breach databases, and code repositories.
+        
+        Applies threat detection to collected OSINT evidence.
 
         Args:
             social_queries: List of {"platform": "...", "identifier": "..."}
@@ -183,9 +228,48 @@ class FOEPPipeline:
                 except Exception as e:
                     logger.error(f"Failed to collect code repo  {e}")
 
+        # Apply threat detection to OSINT evidence
+        logger.info(f"Analyzing {len(evidence)} OSINT items for threats...")
+        evidence = self._apply_threat_detection_to_evidence(evidence)
+
         logger.info(f"OSINT collection complete. Collected {len(evidence)} items.")
         self.all_evidence.extend(evidence)
         return evidence
+    
+    def run_threat_analysis(self) -> Dict[str, Any]:
+        """
+        Perform comprehensive threat analysis on all ingested evidence.
+        
+        Returns:
+            Dictionary containing threat analysis results and statistics
+        """
+        if not self.all_evidence:
+            logger.warning("No evidence available for threat analysis")
+            return {}
+        
+        logger.info("Starting threat analysis phase...")
+        
+        # Create comprehensive threat summary
+        threat_summary = create_threat_summary(self.all_evidence)
+        
+        # Extract high-priority threats
+        malicious_evidence = [
+            ev for ev in self.all_evidence
+            if ev.metadata and 'threat_intel' in ev.metadata
+            and ev.metadata['threat_intel'].get('is_malicious', False)
+        ]
+        
+        logger.info(f"Threat analysis complete: {threat_summary['total_threats']} threats detected")
+        logger.info(f"Critical threats: {threat_summary['threat_levels'].get('critical', 0)}")
+        logger.info(f"High threats: {threat_summary['threat_levels'].get('high', 0)}")
+        
+        self.threat_detections = {
+            'summary': threat_summary,
+            'malicious_count': len(malicious_evidence),
+            'malicious_evidence': malicious_evidence,
+        }
+        
+        return self.threat_detections
 
     def run_correlation_and_scoring(self) -> List[Evidence]:
         """
@@ -336,6 +420,8 @@ class FOEPPipeline:
     ) -> str:
         """
         Execute the complete FOEP pipeline from ingestion to reporting.
+        
+        Includes threat detection during ingestion phase.
 
         Returns:
             Path to generated report.
@@ -343,7 +429,7 @@ class FOEPPipeline:
         start_time = time.time()
         logger.info(f"Starting FOEP full pipeline for case: {self.case_id}")
 
-        # Ingest forensic data
+        # Ingest forensic data (with threat detection)
         self.run_forensic_ingestion(
             disk_images=disk_images,
             memory_dumps=memory_dumps,
@@ -351,12 +437,15 @@ class FOEPPipeline:
             log_directories=log_directories,
         )
 
-        # Collect OSINT
+        # Collect OSINT (with threat detection)
         self.run_osint_collection(
             social_queries=social_queries,
             breach_queries=breach_queries,
             code_queries=code_queries,
         )
+
+        # Perform threat analysis
+        self.run_threat_analysis()
 
         # Correlate and score
         self.run_correlation_and_scoring()

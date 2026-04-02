@@ -1,202 +1,145 @@
-# 🕵️‍♂️ Forensic OSINT-to-Evidence Pipeline (FOEP)
+# 🕵️‍♂️ FOEP - Forensic OSINT-to-Evidence Pipeline
 
-**Automated Multi-Source OSINT Collection, Correlation, and Reporting for Digital Forensics**
+**Automated Multi-Source OSINT Collection, Threat Analysis, Correlation, and Court-Ready Reporting for Digital Forensics**
 
 ---
 
-## 📌 Overview
+## 📌 About
 
-FOEP is a comprehensive forensic framework that automates the collection, correlation, and reporting of open-source intelligence (OSINT) and digital forensics evidence from multiple public sources. It transforms raw data into structured, court-ready evidence with credibility scoring and knowledge graph visualization.
+FOEP is an end-to-end forensic framework that automates:
+- **Collection**: Gathers evidence from forensic artifacts (disk, memory, logs) and 10+ OSINT sources
+- **Threat Detection**: Identifies malicious activity through integrated threat intelligence
+- **Correlation**: Links entities and discovers relationships using Neo4j knowledge graphs
+- **Analysis**: Generates forensic verdicts with threat scoring and recommendations
+- **Reporting**: Creates court-admissible reports with chain of custody documentation
+
+Perfect for forensic analysts who need to quickly gather data from multiple sources, detect threats, and generate comprehensive investigation reports.
 
 ### ✨ Key Features
-- **Multi-Source Collection**: GitHub, Twitter, Domain DNS, HIBP Breaches, IP Geolocation, VirusTotal, Shodan, Archive.org
-- **Forensic Integration**: Disk image analysis, Memory dumps, System logs
-- **Digital Forensics**: File hashing, Artifact extraction, Timeline analysis
-- **🚨 Automated Threat Detection**: AbuseIPDB, OTX, and Shodan intelligence parsing with threat scoring
-- **Threat Intelligence Correlation**: Neo4j-based incident node creation and threat actor linkage
-- **Forensic Verdict Generation**: Automated malicious entity flagging with confidence scoring and recommendations
-- **Credibility Scoring**: Evidence weighted by source reliability
-- **Knowledge Graph**: Neo4j-based entity correlation and link analysis
-- **Court-Ready Reports**: HTML/PDF output with redacted sensitive fields and threat analysis
-- **Chain of Custody**: Automated documentation of evidence handling
-- **Ethical Compliance**: Uses only public APIs and authorized forensic analysis — no unauthorized access
+- ✅ **Forensic Integration**: Disk images, memory dumps, system logs
+- ✅ **10+ OSINT Sources**: GitHub, Twitter, Domains, HIBP, IP Geolocation, VirusTotal, Shodan, Archive.org, Code Repos, Breaches
+- ✅ **Real-Time Threat Detection**: 6+ threat detector types (malware, phishing, botnet, persistence, LOLBin)
+- ✅ **Multi-Source Intelligence**: AbuseIPDB, OTX, Shodan, VirusTotal, Local DB, Emerging Threats
+- ✅ **Knowledge Graph**: Neo4j-based entity correlation and incident visualization
+- ✅ **Threat Analysis**: Automated malicious entity identification with confidence scoring
+- ✅ **Credibility Scoring**: Evidence weighted by source reliability and corroboration
+- ✅ **Court-Ready Reports**: HTML/PDF with forensic verdict, threat analysis, and full chain of custody
+- ✅ **Redaction**: PII protection (emails, IPs, names, usernames)
+- ✅ **Ethical Compliance**: Only public APIs and authorized forensic analysis
 
 ---
 
-## 🚀 Quick Start
-
-```bash
-# Setup development environment
-git clone https://github.com/yourusername/FOEP.git
-cd FOEP
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Run tests
-python -m pytest tests/unit/test_normalize.py -v
-python run_all_tests.py
-
-# Install Neo4j (optional but recommended)
-sudo apt install neo4j -y
-sudo neo4j-admin dbms set-initial-password neo4j
-sudo systemctl start neo4j
-
-# Run full forensic pipeline
-foep-ingest \
-  --social "github:trailofbits" \
-  --social "twitter:jack" \
-  --domain "microsoft.com" \
-  --breach "account-exists@hibp-integration-tests.com" \
-  --output evidence.json \
-  --case-id DEMO-2026
-
-foep-correlate --input evidence.json --output correlated.json --case-id DEMO-2026
-foep-report --input correlated.json --output reports/ --case-id DEMO-2026 --format html
-```
-
----
-
-## 📦 Installation & Development Setup from Scratch
+## 🚀 Installation & Setup Guide
 
 ### System Requirements
-- **OS**: Linux (Ubuntu 20.04+), macOS, or Windows (WSL2)
-- **Python**: 3.10 or higher
-- **Git**: Latest version
-- **RAM**: 4GB minimum (8GB recommended)
-- **Disk Space**: 2GB minimum
-- **Neo4j**: 5.x (optional but recommended for graph correlation)
 
-### Step-by-Step Complete Setup
+| Requirement | Minimum | Recommended |
+|-------------|---------|------------|
+| **OS** | Ubuntu 18.04, macOS 10.14, Windows 10 WSL2 | Ubuntu 20.04+, macOS 11+, Windows 11 WSL2 |
+| **Python** | 3.8 | 3.10+ |
+| **RAM** | 4GB | 8GB+ |
+| **Disk Space** | 2GB | 5GB+ |
+| **Neo4j** | 4.4 (optional) | 5.x (docker) |
 
-#### **Phase 1: System Prerequisites**
-
-##### Linux/Ubuntu Setup
-```bash
-# Update system packages
-sudo apt update && sudo apt upgrade -y
-
-# Install system dependencies
-sudo apt install -y python3.10 python3.10-venv python3-pip git curl wget
-
-# Verify installations
-python3 --version
-git --version
-```
-
-##### macOS Setup
-```bash
-# Install using Homebrew (if not installed, visit https://brew.sh)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install dependencies
-brew install python@3.10 git
-
-# Verify installations
-python3 --version
-git --version
-```
-
-##### Windows (WSL2) Setup
-```bash
-# Open PowerShell as Administrator
-# Install WSL2: wsl --install
-# Then in WSL Ubuntu terminal:
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3 python3-venv python3-pip git
-```
-
-#### **Phase 2: Repository Setup**
+### Step 1: Clone Repository
 
 ```bash
-# 1. Clone repository
+# Clone the project
 git clone https://github.com/BharathKumar19406/FOEP.git
 cd FOEP
 
-# 2. Verify repository structure
+# Verify structure
 ls -la
-# Should show: src/, scripts/, tests/, config/, README.md, setup.py, requirements.txt
-
-# 3. Check current branch (should be 'main')
-git branch
+# Expected: src/, scripts/, tests/, config/, setup.py, requirements.txt, requirements-dev.txt
 ```
 
-#### **Phase 3: Virtual Environment Setup**
+### Step 2: Install System Dependencies
+
+#### **On Ubuntu/Debian:**
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3.10 python3.10-venv python3-pip git curl wget
+python3.10 --version  # Verify Python 3.10
+```
+
+#### **On macOS:**
+```bash
+# Install Homebrew if needed: https://brew.sh
+brew install python@3.10 git
+python3 --version  # Should show 3.10+
+```
+
+#### **On Windows (PowerShell as Admin):**
+```powershell
+# Install WSL2 environment
+wsl --install
+
+# Then in WSL Ubuntu terminal:
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git
+```
+
+### Step 3: Create Virtual Environment
 
 ```bash
-# 1. Create virtual environment
+# Create virtual environment
 python3 -m venv venv
 
-# 2. Activate virtual environment
+# Activate it
 # On Linux/macOS:
 source venv/bin/activate
 
 # On Windows (PowerShell):
 venv\Scripts\Activate.ps1
-
-# On Windows (cmd):
+# On Windows (cmd.exe):
 venv\Scripts\activate.bat
 
-# 3. Verify activation (should show (venv) prefix)
-which python  # or 'where python' on Windows
+# Verify activation (should show (venv) prefix in terminal)
+which python
 ```
 
-#### **Phase 4: Install Dependencies**
+### Step 4: Install Project Dependencies
 
 ```bash
-# 1. Upgrade pip, setuptools, wheel to latest versions
+# Upgrade pip, setuptools, wheel
 pip install --upgrade pip setuptools wheel
 
-# 2. Install all project dependencies
+# Install all requirements
 pip install -r requirements.txt
 
-# 3. (Optional) Install development/testing tools
+# (Optional) Install development dependencies for testing
 pip install -r requirements-dev.txt
 
-# 4. Install package in development mode (editable)
+# Install package in development mode
 pip install -e .
 
-# 5. Verify installation
-pip list | grep -E "pydantic|neo4j|pytest|jinja2"
+# Verify installation
+python -c "from foep.core.pipeline import FOEPPipeline; print('✅ FOEP installed successfully')"
 ```
 
-#### **Phase 5: Verify Installation**
+### Step 5: (Optional) Setup Neo4j for Graph Correlation
 
+#### **Option A: Docker (Recommended)**
 ```bash
-# 1. Check Python packages
-python -c "import foep; print('✅ FOEP imported successfully')"
+# Install Docker: https://docs.docker.com/get-docker/
 
-# 2. Run quick test
-python -m pytest tests/unit/test_normalize.py::TestEvidenceSchema::test_valid_evidence_creation -v
-
-# 3. Expected output: "PASSED"
-```
-
-#### **Phase 6: (Optional) Neo4j Setup**
-
-##### Docker-based Neo4j (Recommended)
-```bash
-# 1. Install Docker (visit https://docs.docker.com/get-docker/)
-
-# 2. Start Neo4j container
+# Start Neo4j container
 docker run -d \
-  --name neo4j \
+  --name foep-neo4j \
   -p 7474:7474 -p 7687:7687 \
   -e NEO4J_AUTH=neo4j/foep-password \
-  neo4j:5
+  neo4j:5.0
 
-# 3. Wait for startup (30 seconds)
+# Wait for startup
 sleep 30
 
-# 4. Verify connection
+# Verify
 curl http://localhost:7474
-
-# 5. Access Neo4j Browser
-# Open: http://localhost:7474
+# Open browser: http://localhost:7474
 # Login: neo4j / foep-password
 ```
 
-##### System Neo4j Installation (Ubuntu)
+#### **Option B: Ubuntu/Debian**
 ```bash
 # Add Neo4j repository
 wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
@@ -211,43 +154,414 @@ sudo systemctl start neo4j
 sudo systemctl enable neo4j
 
 # Set password
-sudo neo4j-admin set-initial-password foep-password
-
-# Restart
+sudo neo4j-admin dbms set-initial-password foep-password
 sudo systemctl restart neo4j
 ```
 
-#### **Phase 7: Configure Application**
+### Step 6: Configure Application
 
 ```bash
-# 1. Edit configuration file
-cp config/config.yaml.example config/config.yaml  # if example exists
-# OR
-nano config/config.yaml
+# Review/edit configuration
+cat config/config.yaml
 
-# 2. Update config/config.yaml with your settings:
+# Update config with your settings:
+# - Neo4j connection details
+# - Threat intelligence API keys (optional)
+# - Redaction preferences
+# - Case defaults
 ```
 
-```yaml
-# Neo4j Connection
-neo4j:
-  enabled: true
-  uri: "bolt://localhost:7687"
-  username: "neo4j"
-  password: "foep-password"
+---
 
-# Threat Intelligence Sources
-threat_intel:
-  abuseipdb:
-    enabled: true
-    api_key: "YOUR_ABUSEIPDB_KEY"  # Optional
-  
-  otx:
-    enabled: true
-    api_key: "YOUR_OTX_KEY"  # Optional
-  
-  shodan:
-    enabled: true
+## 📦 Project Dependencies & Modules
+
+### Core Python Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **pydantic** | >=2.0.0 | Data validation and schema modeling |
+| **PyYAML** | >=6.0.0 | Configuration file parsing |
+| **requests** | >=2.28.0 | HTTP client for API calls |
+| **Jinja2** | >=3.0.0 | Report templating engine |
+| **beautifulsoup4** | >=4.12.0 | HTML parsing for OSINT |
+| **lxml** | >=4.9.0 | XML/HTML processing |
+| **neo4j** | >=5.0.0 | Neo4j graph database driver |
+
+### Forensic Analysis Packages
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **dfvfs** | >=20240101 | Digital forensics virtual filesystem |
+| **volatility3** | >=2.0.0 | Memory dump analysis |
+
+### Testing & Quality
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **pytest** | >=7.0.0 | Testing framework |
+| **pytest-cov** | >=4.0.0 | Code coverage analysis |
+| **pytest-mock** | >=3.10.0 | Test mocking utilities |
+| **black** | >=23.0.0 | Code formatting |
+| **mypy** | >=1.5.0 | Static type checking |
+| **flake8** | >=6.0.0 | Code linting |
+| **isort** | >=5.12.0 | Import sorting |
+
+### Project Structure
+
+```
+FOEP/
+├── src/foep/                          # Main package
+│   ├── core/                          # Core pipeline orchestration
+│   │   ├── config.py                  # Configuration management
+│   │   └── pipeline.py                # Main orchestration (with threat detection)
+│   ├── ingest/                        # Data ingestion
+│   │   ├── forensic/                  # Disk, memory, log analysis
+│   │   ├── osint/                     # GitHub, Twitter, Shodan, etc.
+│   │   └── threat_utils.py            # Threat detection utilities
+│   ├── threat/                        # Threat detection & intelligence
+│   │   ├── threat_detector.py         # Local threat detection engine
+│   │   ├── threat_intelligence_aggregator.py  # Multi-source threat feeds
+│   │   ├── threat_parser.py           # AbuseIPDB, OTX, Shodan parsing
+│   │   ├── threat_correlation.py      # Threat incident correlation
+│   │   └── threat_schema.py           # Data schemas for threats
+│   ├── normalize/                     # Evidence normalization
+│   │   ├── schema.py                  # Evidence data models
+│   │   ├── transformer.py             # Data transformation
+│   │   └── hash_utils.py              # Cryptographic hashing
+│   ├── correlate/                     # Entity correlation & linking
+│   │   ├── extractor.py               # Entity extraction
+│   │   ├── linker.py                  # Entity relationship linking
+│   │   └── graph_db.py                # Neo4j graph operations
+│   ├── credibility/                   # Evidence credibility scoring
+│   │   └── scorer.py                  # Credibility calculation
+│   ├── report/                        # Report generation
+│   │   ├── generator.py               # Main report generator
+│   │   ├── custody.py                 # Chain of custody tracking
+│   │   ├── redactor.py                # PII redaction
+│   │   └── templates/                 # HTML/CSS templates
+│   └── sources.py                     # Credibility sources
+├── scripts/                           # CLI scripts
+│   ├── foep_ingest.py                 # Evidence ingestion CLI
+│   ├── foep_correlate.py              # Correlation CLI
+│   ├── foep_report.py                 # Report generation CLI
+│   └── threat_detection_demo.py       # Threat detection demo
+├── tests/                             # Test suite
+│   ├── unit/                          # Unit tests
+│   └── integration/                   # Integration tests
+├── config/                            # Configuration files
+│   └── config.yaml                    # Main configuration
+├── setup.py                           # Package installer
+├── requirements.txt                   # Core dependencies
+├── requirements-dev.txt               # Development dependencies
+└── README.md                          # This file
+```
+
+---
+
+## 🎯 Usage & Execution Guide
+
+### 1️⃣ Run Threat Detection Demo
+
+Quickly see threat detection capabilities:
+
+```bash
+# From project root
+python scripts/threat_detection_demo.py
+
+# Expected output:
+# ✅ Local threat detection: Detects malware, C2 domains, botnet IPs, etc.
+# ✅ Threat aggregation: Queries multiple intelligence sources
+# ✅ Evidence enrichment: Adds threat metadata to evidence
+# ✅ Threat filtering: Categorizes by severity
+# ✅ Summary generation: Statistical analysis
+```
+
+### 2️⃣ Run Unit Tests
+
+Verify installation and basic functionality:
+
+```bash
+# Run all unit tests
+python -m pytest tests/unit/ -v
+
+# Run specific test
+python -m pytest tests/unit/test_normalize.py -v
+
+# Run with coverage
+python -m pytest tests/unit/ --cov=src/foep --cov-report=html
+```
+
+### 3️⃣ Run Integration Tests
+
+Test complete pipeline workflow:
+
+```bash
+# Run integration tests
+python -m pytest tests/integration/ -v
+
+# Run specific integration test
+python -m pytest tests/integration/test_full_pipeline.py::TestFullPipeline::test_full_pipeline_basic -v
+```
+
+### 4️⃣ Run Full Pipeline (Python Script)
+
+Process evidence through complete workflow:
+
+```bash
+python << 'EOF'
+import sys
+sys.path.insert(0, 'src')
+
+from foep.core.config import load_config
+from foep.core.pipeline import FOEPPipeline
+
+# Load configuration
+config = load_config('config/config.yaml')
+
+# Initialize pipeline
+pipeline = FOEPPipeline(
+    config=config,
+    case_id='DEMO-CASE-001',
+    investigator='Forensic Analyst'
+)
+
+# Example 1: OSINT Collection Only
+print("=" * 80)
+print("EXAMPLE 1: OSINT Collection and Threat Analysis")
+print("=" * 80)
+
+osint_evidence = pipeline.run_osint_collection(
+    social_queries=[
+        {'platform': 'github', 'identifier': 'torvalds'},
+        {'platform': 'twitter', 'identifier': 'elonmusk'}
+    ],
+    breach_queries=[
+        {'query': 'test@example.com', 'type': 'email'}
+    ]
+)
+
+print(f"Collected {len(osint_evidence)} OSINT items")
+
+# Perform threat analysis
+threat_analysis = pipeline.run_threat_analysis()
+print(f"Threat analysis: {threat_analysis['summary']['total_threats']} threats detected")
+
+# Generate report
+report_path = pipeline.generate_report(
+    output_dir='reports/demo_osint',
+    format='html'
+)
+print(f"✅ Report generated: {report_path}")
+
+EOF
+```
+
+### 5️⃣ Using CLI Scripts
+
+#### Ingestion
+```bash
+# Collect OSINT evidence
+python scripts/foep_ingest.py \
+  --social "github:linus" \
+  --social "twitter:vint" \
+  --domain "example.com" \
+  --breach "user@example.com" \
+  --output evidence.json \
+  --case-id DEMO-2026
+```
+
+#### Correlation
+```bash
+# Correlate entities
+python scripts/foep_correlate.py \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id DEMO-2026
+```
+
+#### Reporting
+```bash
+# Generate report
+python scripts/foep_report.py \
+  --input correlated.json \
+  --output reports/demo/ \
+  --case-id DEMO-2026 \
+  --format html
+```
+
+### 6️⃣ Python API Usage
+
+```python
+from foep.core.config import load_config
+from foep.core.pipeline import FOEPPipeline
+from foep.ingest.threat_utils import create_threat_summary, filter_evidence_by_threat_level
+
+# Initialize
+config = load_config('config/config.yaml')
+pipeline = FOEPPipeline(config, 'CASE-001', 'Analyst')
+
+# Collect evidence
+forensic_evidence = pipeline.run_forensic_ingestion(
+    disk_images=['disk.img'],
+    log_directories=['/var/log']
+)
+
+osint_evidence = pipeline.run_osint_collection(
+    social_queries=[{'platform': 'github', 'identifier': 'torvalds'}]
+)
+
+# Threat analysis
+threat_analysis = pipeline.run_threat_analysis()
+print(f"Critical threats: {threat_analysis['summary']['critical_count']}")
+
+# Correlation
+scored_evidence = pipeline.run_correlation_and_scoring()
+
+# Generate report
+report = pipeline.generate_report(
+    output_dir='reports',
+    format='html',
+    case_info={'description': 'Investigation into suspicious activity'}
+)
+print(f"Report: {report}")
+```
+
+---
+
+## 📊 Threat Detection Capabilities
+
+### 6 Specialized Threat Detectors
+
+1. **MalwareHashDetector**: Known malware hash identification
+2. **MaliciousDomainDetector**: C2 servers, phishing infrastructure
+3. **MaliciousIPDetector**: Botnet C2, exposed risky ports, geolocation threats
+4. **MaliciousURLDetector**: Malicious download URLs, payload distribution
+5. **BehavioralThreatDetector**: Persistence mechanisms, suspicious file patterns
+6. **ProcessThreatDetector**: Living-off-the-land (LOLBin) attacks
+
+### 7 Threat Intelligence Sources
+
+1. **AbuseIPDB** - IP reputation database
+2. **OTX** - Open Threat Exchange
+3. **Shodan** - Security exposure data
+4. **VirusTotal** - Malware hash detection
+5. **Local Malware DB** - Custom threat indicators
+6. **Emerging Threats** - Emerging threat feeds
+7. **Abuse Feeds** - Aggregated abuse data
+
+### Threat Levels
+
+- 🔴 **CRITICAL** (80-100%): Immediate action required
+- 🟠 **HIGH** (60-79%): Significant risk
+- 🟡 **MEDIUM** (40-59%): Moderate concern
+- 🟢 **LOW** (20-39%): Minor concern
+- ⚪ **INFO** (0-19%): Informational
+
+---
+
+## 🧪 Verification & Troubleshooting
+
+### Verify Installation
+
+```bash
+# Test imports
+python -c "from foep.core.pipeline import FOEPPipeline; print('✅ OK')"
+
+# Run demo
+python scripts/threat_detection_demo.py
+
+# Run tests
+python -m pytest tests/unit/test_normalize.py -v
+```
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| `ModuleNotFoundError: No module named 'foep'` | Run `pip install -e .` from project root |
+| `Neo4j connection refused` | Check Neo4j is running: `docker ps` or `sudo systemctl status neo4j` |
+| `API key missing` | Add keys to `config/config.yaml` or use default mock responses |
+| `Permission denied` on config | Run `chmod 644 config/config.yaml` |
+
+### Check Logs
+
+```bash
+# View recent logs
+tail -f test.log
+
+# Run with verbose output
+python -m pytest tests/ -v -s
+```
+
+---
+
+## 📝 Example Investigation Workflow
+
+```bash
+#!/bin/bash
+
+# Step 1: Create case directory
+mkdir -p investigations/case-001/{evidence,reports}
+cd investigations/case-001
+
+# Step 2: Collect OSINT
+python ../../scripts/foep_ingest.py \
+  --social "github:suspect-user" \
+  --domain "suspect.com" \
+  --breach "suspect@email.com" \
+  --output evidence/raw.json \
+  --case-id CASE-001
+
+# Step 3: Correlate entities
+python ../../scripts/foep_correlate.py \
+  --input evidence/raw.json \
+  --output evidence/correlated.json \
+  --case-id CASE-001
+
+# Step 4: Generate report
+python ../../scripts/foep_report.py \
+  --input evidence/correlated.json \
+  --output reports/ \
+  --case-id CASE-001 \
+  --format html
+
+# Step 5: Review outputs
+echo "Investigation complete!"
+echo "Reports generated in: reports/"
+ls -la reports/
+```
+
+---
+
+## 📞 Support & Documentation
+
+- **Bug Reports**: Check existing issues or create new ones
+- **Questions**: Post in discussions section
+- **Configuration**: See `config/config.yaml` for all options
+- **API Docs**: Detailed in source code docstrings
+
+---
+
+## 📄 License
+
+This project is provided as-is for forensic analysis and research purposes.
+
+---
+
+## ✅ Getting Started Checklist
+
+- [ ] Clone repository: `git clone ...`
+- [ ] Install Python 3.10+: `python3 --version`
+- [ ] Create venv: `python3 -m venv venv && source venv/bin/activate`
+- [ ] Install deps: `pip install -r requirements.txt`
+- [ ] Run demo: `python scripts/threat_detection_demo.py`
+- [ ] Run tests: `python -m pytest tests/unit/test_normalize.py -v`
+- [ ] (Optional) Setup Neo4j via Docker
+- [ ] Read `config/config.yaml`
+- [ ] Run full pipeline: See "Python API Usage" section
+- [ ] Generate reports: See "Execution Guide" section
+
+🚀 **You're ready to go! Start with the threat detection demo to see FOEP in action.**
     api_key: "YOUR_SHODAN_KEY"  # Optional
 
 # OSINT Sources  

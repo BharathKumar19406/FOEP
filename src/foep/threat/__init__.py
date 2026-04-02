@@ -17,6 +17,21 @@ from .threat_parser import (
     ShodanParser,
 )
 
+from .threat_detector import (
+    ThreatDetectionEngine,
+    MalwareHashDetector,
+    MaliciousDomainDetector,
+    MaliciousIPDetector,
+    MaliciousURLDetector,
+    BehavioralThreatDetector,
+    ProcessThreatDetector,
+)
+
+from .threat_intelligence_aggregator import (
+    ThreatIntelligenceAggregator,
+    ThreatFeedConfig,
+)
+
 __all__ = [
     "ThreatLevel",
     "ThreatSource",
@@ -28,4 +43,13 @@ __all__ = [
     "AbuseIPDBParser",
     "OTXParser",
     "ShodanParser",
+    "ThreatDetectionEngine",
+    "MalwareHashDetector",
+    "MaliciousDomainDetector",
+    "MaliciousIPDetector",
+    "MaliciousURLDetector",
+    "BehavioralThreatDetector",
+    "ProcessThreatDetector",
+    "ThreatIntelligenceAggregator",
+    "ThreatFeedConfig",
 ]

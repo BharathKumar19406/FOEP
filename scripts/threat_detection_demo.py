@@ -4,9 +4,12 @@
 Comprehensive demonstration of FOEP threat detection pipeline.
 
 Shows:
-1. Threat intelligence parsing (AbuseIPDB, OTX, Shodan)
-2. Neo4j incident correlation
-3. Forensic verdict generation
+1. Local threat detection (malware hashes, domains, IPs, URLs, behavioral)
+2. Threat intelligence aggregation from multiple sources
+3. Evidence enrichment with threat metadata
+4. Threat analysis and reporting
+5. Neo4j incident correlation
+6. Forensic verdict generation
 """
 
 import sys
@@ -19,48 +22,328 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from foep.normalize.schema import Evidence, EntityType, ObservationType
 from foep.threat import (
+    ThreatDetectionEngine,
+    ThreatIntelligenceAggregator,
     AbuseIPDBParser,
     OTXParser,
     ShodanParser,
     ThreatLevel,
-    ThreatIndicator,
 )
 from foep.threat.threat_correlation import ThreatCorrelationEngine
 from foep.threat.forensic_verdict_template import ForensicVerdictGenerator
 from foep.threat.threat_schema import ForensicVerdict
+from foep.ingest.threat_utils import (
+    ThreatDetectionIngest,
+    filter_evidence_by_threat_level,
+    create_threat_summary,
+)
 
 
 def create_sample_evidence():
-    """Create sample evidence items for threat detection."""
+    """Create comprehensive sample evidence for threat detection."""
     return [
+        # Malware hash evidence
         Evidence(
-            evidence_id="abuseipdb::ip::192.168.1.100",
-            entity_type=EntityType.IP_ADDRESS,
-            entity_value="192.168.1.100",
-            observation_type=ObservationType.OSINT_REPUTATION,
-            source="abuseipdb",
-            metadata={"scan_source": "network_monitoring"},
-            credibility_score=85,
+            evidence_id="forensic::file_hash::emotet",
+            entity_type=EntityType.HASH,
+            entity_value="69a26c7f9c4c8c44c88d7c9c8e3a3b3c",
+            observation_type=ObservationType.DISK_ARTIFACT,
+            source="forensic_disk",
+            metadata={
+                "filename": "payload.exe.txt",
+                "hash_type": "sha256",
+                "file_path": "C:\\Users\\Admin\\Downloads\\",
+            },
+            credibility_score=90,
         ),
+        # Malicious domain
         Evidence(
-            evidence_id="otx::domain::malicious.ru",
+            evidence_id="osint::domain::c2",
             entity_type=EntityType.DOMAIN,
             entity_value="malicious.ru",
             observation_type=ObservationType.OSINT_REPUTATION,
-            source="otx",
-            metadata={"scan_source": "dns_lookup"},
-            credibility_score=90,
+            source="dns_logs",
+            metadata={"dns_queries": 156, "first_seen": "2024-02-15"},
+            credibility_score=85,
         ),
+        # Malicious IP
         Evidence(
-            evidence_id="shodan::ip::203.0.113.45",
+            evidence_id="osint::ip::botnet",
             entity_type=EntityType.IP_ADDRESS,
             entity_value="203.0.113.45",
             observation_type=ObservationType.OSINT_GEO,
-            source="shodan",
-            metadata={"scan_source": "port_scan"},
+            source="network_logs",
+            metadata={
+                "outbound_connections": 245,
+                "country_code": "RU",
+                "open_ports": [443, 8080, 3389],
+            },
+            credibility_score=88,
+        ),
+        # Malicious URL
+        Evidence(
+            evidence_id="osint::url::payload",
+            entity_type=EntityType.URL,
+            entity_value="http://malicious.ru/payload.exe",
+            observation_type=ObservationType.OSINT_REPUTATION,
+            source="proxy_logs",
+            metadata={"http_requests": 23, "user_agents": ["WinHttp"]},
+            credibility_score=82,
+        ),
+        # Suspicious file (persistence mechanism)
+        Evidence(
+            evidence_id="forensic::file::persistence",
+            entity_type=EntityType.FILE,
+            entity_value="C:\\malware.exe",
+            observation_type=ObservationType.DISK_ARTIFACT,
+            source="forensic_registry",
+            metadata={"value": "c:\\malware.exe", "modified_time": "2024-03-01T14:23:00Z"},
+            credibility_score=95,
+        ),
+        # Suspicious command line
+        Evidence(
+            evidence_id="forensic::cmdline::lolbin",
+            entity_type=EntityType.COMMAND_LINE,
+            entity_value="powershell.exe -e <base64_encoded>",
+            observation_type=ObservationType.MEMORY_ARTIFACT,
+            source="memory_dump",
+            metadata={
+                "parent_process": "explorer.exe",
+                "command_line": "powershell.exe -e <base64_encoded>",
+            },
             credibility_score=80,
         ),
+        # Clean evidence (for comparison)
+        Evidence(
+            evidence_id="osint::domain::legitimate",
+            entity_type=EntityType.DOMAIN,
+            entity_value="microsoft.com",
+            observation_type=ObservationType.OSINT_REPUTATION,
+            source="dns_logs",
+            metadata={"reputation": "trusted", "whois_registrant": "Microsoft Corp"},
+            credibility_score=95,
+        ),
     ]
+
+
+def demo_local_threat_detection():
+    """Demonstrate local threat detection capabilities."""
+    print("\n" + "="*80)
+    print("1. LOCAL THREAT DETECTION DEMO")
+    print("="*80 + "\n")
+    
+    evidence_list = create_sample_evidence()
+    detector = ThreatDetectionEngine()
+    
+    print("Analyzing evidence with local threat detectors...\n")
+    
+    threats_found = []
+    for evidence in evidence_list:
+        threat = detector.detect_threats(evidence)
+        
+        if threat:
+            threats_found.append(threat)
+            
+            # Display threat info
+            print(f"⚠️  THREAT DETECTED: {evidence.entity_value}")
+            print(f"  Type: {evidence.entity_type.value}")
+            print(f"  Threat Level: {threat.threat_level.value.upper()}")
+            print(f"  Threat Score: {threat.threat_score:.1f}%")
+            print(f"  Malicious: {'Yes' if threat.is_malicious else 'No'}")
+            print(f"  Indicators: {len(threat.indicators)}")
+            
+            for indicator in threat.indicators[:3]:
+                print(f"    - {indicator.indicator_type}: {indicator.description}")
+            
+            if threat.recommendations:
+                print(f"  Recommendations:")
+                for rec in threat.recommendations[:2]:
+                    print(f"    • {rec}")
+            print()
+        else:
+            print(f"✓ {evidence.entity_value} - No threats detected\n")
+    
+    # Summary
+    print("Local Threat Detection Summary:")
+    print("-" * 40)
+    threat_counts = {}
+    for threat in threats_found:
+        level = threat.threat_level.value
+        threat_counts[level] = threat_counts.get(level, 0) + 1
+    
+    for level in ['critical', 'high', 'medium', 'low', 'info']:
+        if level in threat_counts:
+            print(f"  {level.upper()}: {threat_counts[level]}")
+
+
+def demo_threat_intelligence_aggregation():
+    """Demonstrate threat intelligence aggregation from multiple sources."""
+    print("\n" + "="*80)
+    print("2. THREAT INTELLIGENCE AGGREGATION DEMO")
+    print("="*80 + "\n")
+    
+    aggregator = ThreatIntelligenceAggregator()
+    
+    # Show available feeds
+    print("Available Threat Intelligence Feeds:")
+    print("-" * 40)
+    for feed_name, feed_config in aggregator.feeds.items():
+        status = "Enabled" if feed_config.enabled else "Disabled"
+        print(f"  • {feed_name:25} [{feed_config.source_type:6}] {status}")
+    print()
+    
+    # Test aggregation on sample evidence
+    test_evidence = [
+        Evidence(
+            evidence_id="network::test_ip_1",
+            entity_type=EntityType.IP_ADDRESS,
+            entity_value="192.168.1.100",
+            observation_type=ObservationType.OSINT_REPUTATION,
+            source="network",
+            metadata={},
+            credibility_score=80,
+        ),
+        Evidence(
+            evidence_id="dns::test_domain_1",
+            entity_type=EntityType.DOMAIN,
+            entity_value="malicious.ru",
+            observation_type=ObservationType.OSINT_REPUTATION,
+            source="dns",
+            metadata={},
+            credibility_score=85,
+        ),
+    ]
+    
+    print("Aggregating threat intelligence for test evidence...\n")
+    
+    for evidence in test_evidence:
+        threat = aggregator.aggregate_threats(evidence)
+        if threat:
+            print(f"{evidence.entity_value}")
+            print(f"  Threat Score: {threat.threat_score:.1f}%")
+            print(f"  Sources: {', '.join(threat.sources.keys())}")
+            print(f"  Threat Level: {threat.threat_level.value.upper()}")
+            print()
+
+
+def demo_evidence_enrichment():
+    """Demonstrate evidence enrichment with threat metadata."""
+    print("\n" + "="*80)
+    print("3. EVIDENCE ENRICHMENT DEMO")
+    print("="*80 + "\n")
+    
+    evidence_list = create_sample_evidence()
+    
+    print("Enriching evidence with threat intelligence...\n")
+    
+    malicious_count = 0
+    for evidence in evidence_list:
+        threat = ThreatDetectionIngest.analyze_evidence(evidence)
+        
+        if threat and threat.is_malicious:
+            malicious_count += 1
+            print(f"✗ {evidence.entity_value}")
+            print(f"  Threat: {threat.threat_level.value} ({threat.threat_score:.0f}%)")
+            indicators = ', '.join(ind.indicator_type for ind in threat.indicators[:2])
+            print(f"  Flagged for: {indicators}")
+            print()
+    
+    print(f"Summary: {malicious_count} malicious items detected")
+
+
+def demo_threat_filtering():
+    """Demonstrate filtering evidence by threat level."""
+    print("\n" + "="*80)
+    print("4. THREAT-BASED EVIDENCE FILTERING")
+    print("="*80 + "\n")
+    
+    evidence_list = create_sample_evidence()
+    
+    print("Filtering evidence by threat level...\n")
+    
+    filtered = filter_evidence_by_threat_level(evidence_list)
+    
+    print("Evidence Distribution by Threat Level:")
+    print("-" * 40)
+    for level in ['critical', 'high', 'medium', 'low', 'clean']:
+        count = len(filtered[level]) if level in filtered else 0
+        print(f"  {level.upper():10}: {count}")
+    print()
+    
+    # Show prioritized items
+    if filtered['critical']:
+        print("CRITICAL THREATS (Immediate Action Required):")
+        for evidence in filtered['critical']:
+            print(f"  • {evidence.entity_value} ({evidence.entity_type.value})")
+
+
+def demo_threat_summary():
+    """Demonstrate threat summary generation."""
+    print("\n" + "="*80)
+    print("5. THREAT ANALYSIS SUMMARY")
+    print("="*80 + "\n")
+    
+    evidence_list = create_sample_evidence()
+    
+    print("Generating comprehensive threat summary...\n")
+    
+    summary = create_threat_summary(evidence_list)
+    
+    print("Threat Intelligence Summary:")
+    print("-" * 40)
+    print(f"  Total Threats Detected: {summary['total_threats']}")
+    print(f"  Clean Items:            {summary['clean_items']}")
+    print(f"  Critical Threats:       {summary['critical_count']}")
+    print(f"  High Threats:           {summary['high_count']}")
+    print(f"  Average Threat Score:   {summary['average_threat_score']:.1f}%")
+    print(f"  Threat Sources:         {', '.join(summary['threat_sources'])}")
+    print()
+    
+    # Top indicators
+    if summary['top_indicators']:
+        print("Top Threat Indicators:")
+        for indicator_type, count in list(summary['top_indicators'].items())[:5]:
+            print(f"  • {indicator_type}: {count} occurrences")
+
+
+def main():
+    """Run all threat detection demos."""
+    print("\n" + "="*80)
+    print("FOEP ADVANCED THREAT DETECTION DEMONSTRATION")
+    print("="*80 + "\n")
+    
+    try:
+        # Run demonstrations
+        demo_local_threat_detection()
+        demo_threat_intelligence_aggregation()
+        demo_evidence_enrichment()
+        demo_threat_filtering()
+        demo_threat_summary()
+        
+        # Final summary
+        print("\n" + "="*80)
+        print("✓ THREAT DETECTION DEMONSTRATION COMPLETE")
+        print("="*80 + "\n")
+        
+        print("KEY IMPROVEMENTS:")
+        print("-" * 40)
+        print("• Local threat detection for hashes, domains, IPs, URLs")
+        print("• Behavioral threat detection (persistence mechanisms)")
+        print("• Aggregation from multiple threat intelligence sources")
+        print("• Evidence enrichment with threat metadata")
+        print("• Intelligent filtering and prioritization")
+        print("• Comprehensive threat analysis and reporting")
+        print()
+        
+    except Exception as e:
+        print(f"Error during demonstration: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    main()
+
 
 
 def create_sample_threat_data():
