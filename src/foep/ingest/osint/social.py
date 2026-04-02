@@ -44,11 +44,13 @@ class GitHubCollector(OSINTCollector):
     BASE_URL = "https://api.github.com"
 
     def collect_user(self, username: str) -> Generator[Evidence, None, None]:
-        if not self.config.get("github", {}).get("enabled", False):
+        # ✅ Handle both dict and Pydantic config objects
+        config_dict = self.config if isinstance(self.config, dict) else self.config.model_dump()
+        if not config_dict.get("github", {}).get("enabled", False):
             logger.warning("GitHub collection disabled in config")
             return
 
-        token = self.config.get("github", {}).get("api_token")
+        token = config_dict.get("github", {}).get("api_token")
         headers = {"Accept": "application/vnd.github.v3+json"}
         if token:
             # Handle SecretStr from Pydantic config
@@ -143,10 +145,12 @@ class GitHubCollector(OSINTCollector):
     def collect_search(
         self, query: str, max_results: int = 10
     ) -> Generator[Evidence, None, None]:
-        if not self.config.get("github", {}).get("enabled", False):
+        # ✅ Handle both dict and Pydantic config objects
+        config_dict = self.config if isinstance(self.config, dict) else self.config.model_dump()
+        if not config_dict.get("github", {}).get("enabled", False):
             return
 
-        token = self.config.get("github", {}).get("api_token")
+        token = config_dict.get("github", {}).get("api_token")
         headers = {"Accept": "application/vnd.github.v3+json"}
         if token:
             # Handle SecretStr from Pydantic config
@@ -181,7 +185,9 @@ class TwitterCollector(OSINTCollector):
     BASE_URL = "https://api.twitter.com/2"  # ← v2 API (Essential Access)
 
     def collect_user(self, username: str) -> Generator[Evidence, None, None]:
-        twitter_config = self.config.get("twitter", {})
+        # ✅ Handle both dict and Pydantic config objects
+        config_dict = self.config if isinstance(self.config, dict) else self.config.model_dump()
+        twitter_config = config_dict.get("twitter", {})
         if not twitter_config.get("enabled", False):
             logger.warning("Twitter collection disabled in config")
             return
@@ -253,7 +259,9 @@ class LinkedInCollector(OSINTCollector):
     """
     
     def collect_profile(self, username: str) -> Generator[Evidence, None, None]:
-        if not self.config.get("linkedin", {}).get("enabled", False):
+        # ✅ Handle both dict and Pydantic config objects
+        config_dict = self.config if isinstance(self.config, dict) else self.config.model_dump()
+        if not config_dict.get("linkedin", {}).get("enabled", False):
             logger.warning("LinkedIn collection disabled in config")
             return
 

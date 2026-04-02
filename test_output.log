@@ -1,0 +1,30 @@
+2026-04-02 12:43:35,338 - foep.core.config - INFO - Loaded configuration from config/config.yaml
+2026-04-02 12:43:35,354 - foep_ingest - INFO - Starting OSINT collection...
+2026-04-02 12:43:35,355 - foep.core.pipeline - INFO - Searching breaches for email: test@example.com
+2026-04-02 12:43:35,356 - foep.ingest.osint.breaches - INFO - [MOCK] Using simulated HIBP data for validation
+2026-04-02 12:43:35,356 - foep.ingest.osint.breaches - INFO - [MOCK] No simulated breaches for test@example.com
+2026-04-02 12:43:35,356 - foep.core.pipeline - INFO - Searching code repos for: buffer-overflow
+2026-04-02 12:43:35,356 - foep.ingest.osint.code_repos - ERROR - GitHub API token missing
+2026-04-02 12:43:35,356 - foep.core.pipeline - INFO - Analyzing 0 OSINT items for threats...
+2026-04-02 12:43:35,356 - foep.core.pipeline - INFO - OSINT collection complete. Collected 0 items.
+2026-04-02 12:43:35,356 - foep_ingest - INFO - Collecting domain OSINT for: google.com
+2026-04-02 12:43:42,808 - foep.ingest.osint.shodan - WARNING - Shodan error for 142.251.220.46: 403
+2026-04-02 12:43:43,158 - foep_ingest - INFO - Collecting domain OSINT for: github.com
+2026-04-02 12:43:47,758 - foep.ingest.osint.shodan - WARNING - Shodan error for 20.207.73.82: 403
+2026-04-02 12:43:48,671 - foep.ingest.osint.virustotal - ERROR - VT hash check failed for 5d41402abc4b2a76b9719d911017c592: 1 validation error for Evidence
+sha256_hash
+  String should match pattern '^[a-fA-F0-9]{64}$' [type=string_pattern_mismatch, input_value='5d41402abc4b2a76b9719d911017c592', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_pattern_mismatch
+2026-04-02 12:43:48,672 - foep_ingest - INFO - Collecting Twitter OSINT for: github
+Traceback (most recent call last):
+  File "/home/codespace/.python/current/bin/foep-ingest", line 7, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/workspaces/FOEP/scripts/foep_ingest.py", line 235, in main
+    osint_evidence.extend(twitter_collector.collect_user(username))
+  File "/workspaces/FOEP/src/foep/ingest/osint/social.py", line 184, in collect_user
+    twitter_config = self.config.get("twitter", {})
+                     ^^^^^^^^^^^^^^^
+  File "/usr/local/python/3.12.1/lib/python3.12/site-packages/pydantic/main.py", line 1026, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'FOEPConfig' object has no attribute 'get'
