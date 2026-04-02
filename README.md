@@ -110,14 +110,135 @@ pip install -r requirements.txt
 # (Optional) Install development dependencies for testing
 pip install -r requirements-dev.txt
 
-# Install package in development mode
+# Install package in development mode (enables CLI commands globally)
 pip install -e .
 
 # Verify installation
-python -c "from foep.core.pipeline import FOEPPipeline; print('✅ FOEP installed successfully')"
+foep-ingest --help  # Should show CLI help without error
 ```
 
-### Step 5: (Optional) Setup Neo4j for Graph Correlation
+---
+
+## 🎯 Quick Start: Using FOEP via CLI Commands
+
+FOEP provides three main CLI commands for the complete forensic pipeline. **NO Python code changes needed!**
+
+### Command 1: `foep-ingest` - Collect Evidence
+
+Gather evidence from forensics, OSINT, and threat intelligence sources.
+
+```bash
+# Basic usage - GitHub evidence
+foep-ingest \
+  --social "github:username" \
+  --output evidence.json \
+  --case-id CASE-2024-001
+
+# Full example with multiple sources
+foep-ingest \
+  --social "github:trailofbits" \
+  --social "twitter:jack" \
+  --breach "admin@company.com" \
+  --domain "example.com" \
+  --vt-hash "d41d8cd98f00b204e9800998ecf8427e" \
+  --output evidence.json \
+  --case-id FORENSIC-2024-001 \
+  --investigator "John Doe" \
+  --verbose
+
+# With forensic artifacts
+foep-ingest \
+  --disk /path/to/image.E01 \
+  --memory /path/to/memory.dump \
+  --log /var/log/auth.log \
+  --output forensic_evidence.json \
+  --case-id CASE-2024-001 \
+  --verbose
+```
+
+### Command 2: `foep-correlate` - Correlate & Analyze
+
+Link entities, detect relationships, and identify threats.
+
+```bash
+# Basic correlation
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id FORENSIC-2024-001
+
+# With verbose output
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id FORENSIC-2024-001 \
+  --investigator "Jane Smith" \
+  --verbose
+```
+
+### Command 3: `foep-report` - Generate Forensic Report
+
+Create court-ready reports with threat analysis and chain of custody.
+
+```bash
+# Generate HTML report
+foep-report \
+  --input correlated.json \
+  --output reports/ \
+  --case-id FORENSIC-2024-001 \
+  --format html \
+  --title "Case Investigation Report" \
+  --organization "Cyber Forensics Lab"
+
+# Generate PDF report
+foep-report \
+  --input correlated.json \
+  --output reports/ \
+  --case-id FORENSIC-2024-001 \
+  --format pdf \
+  --title "Incident Response Report" \
+  --description "Comprehensive threat analysis and evidence correlation" \
+  --organization "SOC Team"
+```
+
+### Complete Pipeline Example
+
+```bash
+# Step 1: Collect evidence from multiple sources
+foep-ingest \
+  --social "github:attacker" \
+  --domain "malicious.com" \
+  --breach "suspect@email.com" \
+  --output evidence.json \
+  --case-id INVESTIGATION-2024 \
+  --investigator "Security Team"
+
+# Step 2: Correlate entities and detect threats
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id INVESTIGATION-2024 \
+  --verbose
+
+# Step 3: Generate comprehensive report
+foep-report \
+  --input correlated.json \
+  --output case_reports/ \
+  --case-id INVESTIGATION-2024 \
+  --format html \
+  --title "Security Investigation Report" \
+  --organization "Incident Response Team"
+
+# Results:
+# ✅ case_reports/report.html - Interactive forensic report
+# ✅ case_reports/threat_summary.json - Threat analysis data
+# ✅ case_reports/chain_of_custody.txt - Evidence chain of custody
+echo "✅ Investigation complete! Check case_reports/ for all generated files"
+```
+
+---
+
+## 🔧 Step 5: (Optional) Setup Neo4j for Graph Correlation
 
 #### **Option A: Docker (Recommended)**
 ```bash
@@ -625,7 +746,22 @@ EOF
 
 ## 🧪 Testing
 
-### Run All Tests
+### Verify CLI Commands Work
+
+```bash
+# Test foep-ingest CLI
+foep-ingest --help
+
+# Test foep-correlate CLI  
+foep-correlate --help
+
+# Test foep-report CLI
+foep-report --help
+
+# All commands should display usage and options without error
+```
+
+### Run All Unit Tests
 ```bash
 # Using pytest
 python -m pytest tests/ -v
@@ -647,6 +783,15 @@ python -m pytest tests/integration/ -v
 
 # Specific test file
 python -m pytest tests/unit/test_normalize.py -v
+
+# Threat detection tests
+python -m pytest tests/ -k threat -v
+```
+
+### Expected Test Results
+```
+tests/unit/test_normalize.py ..................... [100%]
+✅ 17 passed in 0.18s
 ```
 
 ---

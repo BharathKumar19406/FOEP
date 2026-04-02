@@ -2,10 +2,12 @@
 """
 Forensic OSINT-to-Evidence Pipeline (FOEP)
 Complete setup configuration for installation and distribution.
+Properly configured for CLI entry points and Kali Linux compatibility.
 """
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
 import os
+import sys
 
 # Read README for long description
 this_directory = os.path.abspath(os.path.dirname(__file__))
@@ -21,8 +23,15 @@ def read_requirements(filename):
             for line in f:
                 line = line.strip()
                 if line and not line.startswith("#"):
-                    requirements.append(line)
+                    # Handle lines with extras (e.g., pydantic>=2.0)
+                    if not line.startswith("-"):
+                        requirements.append(line)
     return requirements
+
+# Find all packages in src/ directory
+packages = find_packages(where="src")
+# Add scripts as a package
+packages.append("scripts")
 
 setup(
     name="foep",
@@ -32,14 +41,16 @@ setup(
     long_description_content_type="text/markdown",
     author="FOEP Development Team",
     author_email="foep-team@example.com",
-    url="https://github.com/your-org/foep",
+    url="https://github.com/BharathKumar19406/FOEP",
     license="MIT",
-    # Core package structure
-    packages=find_packages(where="src") + ["scripts"],
+    
+    # Properly configured package structure
+    packages=packages,
     package_dir={
-        "": "src",
-        "scripts": "scripts"
+        "": "src",          # src/foep, src/foep/*, etc.
+        "scripts": "scripts"  # scripts/ as root level package
     },
+    
     python_requires=">=3.10",
     install_requires=read_requirements("requirements.txt"),
     extras_require={

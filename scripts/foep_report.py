@@ -8,9 +8,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
+# Proper package imports (works when installed on Kali/any system)
 from foep.core.config import load_config
 from foep.core.pipeline import FOEPPipeline
 from foep.normalize.schema import Evidence

@@ -4,6 +4,7 @@ scripts/__init__.py
 scripts/foep_correlate.py
 scripts/foep_ingest.py
 scripts/foep_report.py
+scripts/threat_detection_demo.py
 src/foep/__init__.py
 src/foep.egg-info/PKG-INFO
 src/foep.egg-info/SOURCES.txt
@@ -23,6 +24,7 @@ src/foep/credibility/__init__.py
 src/foep/credibility/scorer.py
 src/foep/credibility/sources.py
 src/foep/ingest/__init__.py
+src/foep/ingest/threat_utils.py
 src/foep/ingest/forensic/__init__.py
 src/foep/ingest/forensic/disk.py
 src/foep/ingest/forensic/logs.py
@@ -46,3 +48,10 @@ src/foep/report/__init__.py
 src/foep/report/custody.py
 src/foep/report/generator.py
 src/foep/report/redactor.py
+src/foep/threat/__init__.py
+src/foep/threat/forensic_verdict_template.py
+src/foep/threat/threat_correlation.py
+src/foep/threat/threat_detector.py
+src/foep/threat/threat_intelligence_aggregator.py
+src/foep/threat/threat_parser.py
+src/foep/threat/threat_schema.py
