@@ -1,7 +1,7 @@
 # src/foep/normalize/schema.py
 from enum import Enum
 from typing import Any, Dict, Optional
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 
 class EntityType(str, Enum):
@@ -38,6 +38,8 @@ class ObservationType(str, Enum):
 
 
 class Evidence(BaseModel):
+    model_config = ConfigDict(frozen=True)
+    
     evidence_id: str = Field(
         ..., description="Globally unique ID (e.g., 'disk_file::a1b2c3')"
     )
@@ -66,10 +68,3 @@ class Evidence(BaseModel):
         if not v or "::" not in v:
             raise ValueError("evidence_id must be in format 'source::unique_key'")
         return v
-
-    class Config:
-        frozen = True
-        json_encoders = {
-            EntityType: lambda v: v.value,
-            ObservationType: lambda v: v.value,
-        }

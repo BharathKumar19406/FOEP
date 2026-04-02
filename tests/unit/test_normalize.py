@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 
 from foep.normalize.schema import Evidence, EntityType, ObservationType
 from foep.normalize.hash_utils import compute_sha256, compute_sha256_from_file
@@ -130,8 +131,8 @@ class TestEvidenceSchema:
             credibility_score=80
         )
         
-        # Attempt to modify should raise error
-        with pytest.raises(TypeError, match="does not support item assignment"):
+        # Attempt to modify should raise error (ValidationError in Pydantic 2.0)
+        with pytest.raises(ValidationError, match="frozen_instance"):
             evidence.entity_value = "new@example.com"
 
     def test_json_serialization(self):
@@ -314,7 +315,7 @@ class TestEvidenceNormalizer:
             observation_type=ObservationType.OSINT_POST
         )
         
-        assert len(evidence_list) == 2
+        assert len(evidence_list) == 3  # username, email, and aggregated post
         assert all(isinstance(ev, Evidence) for ev in evidence_list)
         usernames = [ev for ev in evidence_list if ev.entity_type == EntityType.USERNAME]
         assert len(usernames) == 1

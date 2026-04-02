@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
 import yaml
-from pydantic import BaseModel, Field, SecretStr, field_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, ConfigDict
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ class FOEPConfig(BaseModel):
     """
     Main configuration model for FOEP.
     """
+    model_config = ConfigDict(populate_by_name=True)
 
     github: GitHubConfig = Field(default_factory=GitHubConfig)
     twitter: TwitterConfig = Field(default_factory=TwitterConfig)
@@ -153,12 +154,6 @@ class FOEPConfig(BaseModel):
             v["neo4j.database"] = os.environ["NEO4J_DATABASE"]
 
         return v
-
-    class Config:
-        # Allow population by field name (not just alias)
-        populate_by_name = True
-        # Prevent accidental logging of secrets
-        json_encoders = {SecretStr: lambda v: v.get_secret_value() if v else None}
 
 
 def load_config(config_path: Optional[Union[str, Path]] = None) -> FOEPConfig:

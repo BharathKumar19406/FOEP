@@ -1,0 +1,109 @@
+[
+  {
+    "evidence_id": "github::user::trailofbits",
+    "entity_type": "username",
+    "entity_value": "trailofbits",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "Trail of Bits",
+      "public_repos": 247,
+      "followers": 5800,
+      "company": "Trail of Bits",
+      "location": "Brooklyn, NY",
+      "bio": "Cyber security research"
+    },
+    "credibility_score": 90,
+    "sha256_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "evidence_id": "twitter::user::jack",
+    "entity_type": "username",
+    "entity_value": "jack",
+    "observation_type": "osint_post",
+    "source": "twitter",
+    "metadata": {
+      "name": "Jack Dorsey",
+      "followers": 4500000,
+      "tweets_count": 35000,
+      "verified": true,
+      "location": "San Francisco, CA"
+    },
+    "credibility_score": 85,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "domain::microsoft::mx",
+    "entity_type": "domain",
+    "entity_value": "microsoft.com",
+    "observation_type": "osint_dns",
+    "source": "dns_lookup",
+    "metadata": {
+      "registrar": "MarkMonitor, Inc.",
+      "created_date": "1991-05-03",
+      "updated_date": "2024-03-15",
+      "nameservers": [
+        "ns1.msft.net",
+        "ns2.msft.net"
+      ],
+      "record_count": 45
+    },
+    "credibility_score": 95,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "breach::hibp::test@example.com",
+    "entity_type": "email",
+    "entity_value": "test@example.com",
+    "observation_type": "osint_breach",
+    "source": "haveibeenpwned",
+    "metadata": {
+      "breaches": [
+        "Adobe",
+        "LinkedIn",
+        "Equifax"
+      ],
+      "pastes": 2,
+      "first_seen": "2013-12-04",
+      "pwned_accounts": 3
+    },
+    "credibility_score": 100,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "hash::file::abc123",
+    "entity_type": "hash",
+    "entity_value": "356a192b7913b04c54574d18c28d46e6395428ab",
+    "observation_type": "disk_artifact",
+    "source": "disk_analysis",
+    "metadata": {
+      "file_path": "/var/log/system.log",
+      "file_size": 1024000,
+      "file_type": "text",
+      "accessed": "2024-04-01T10:30:00Z",
+      "modified": "2024-04-01T09:15:00Z"
+    },
+    "credibility_score": 100,
+    "sha256_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "evidence_id": "ipaddress::shodan::8.8.8.8",
+    "entity_type": "ip_address",
+    "entity_value": "8.8.8.8",
+    "observation_type": "osint_geo",
+    "source": "shodan",
+    "metadata": {
+      "hostname": "dns.google",
+      "organization": "Google LLC",
+      "country": "US",
+      "city": "Mountain View",
+      "services": [
+        "DNS",
+        "HTTP",
+        "HTTPS"
+      ]
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  }
+]

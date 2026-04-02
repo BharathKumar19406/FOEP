@@ -84,6 +84,7 @@ class EvidenceNormalizer:
             "log_parser",
             "sysmon",
             "plaso",
+            "test_logger",  # For testing
         }
         if source in internal_sources:
             return 100

@@ -28,12 +28,16 @@ src/foep/ingest/forensic/disk.py
 src/foep/ingest/forensic/logs.py
 src/foep/ingest/forensic/memory.py
 src/foep/ingest/osint/__init__.py
+src/foep/ingest/osint/archiveorg.py
 src/foep/ingest/osint/breaches.py
 src/foep/ingest/osint/code_repos.py
 src/foep/ingest/osint/domains.py
+src/foep/ingest/osint/ipgeolocation.py
+src/foep/ingest/osint/shodan.py
 src/foep/ingest/osint/social.py
 src/foep/ingest/osint/twitter.py
 src/foep/ingest/osint/virustotal.py
+src/foep/ingest/osint/whois_history.py
 src/foep/normalize/__init__.py
 src/foep/normalize/hash_utils.py
 src/foep/normalize/schema.py

@@ -39,6 +39,8 @@ Requires-Dist: sphinx>=7.0.0
 Requires-Dist: sphinx-rtd-theme>=1.2.0
 Requires-Dist: ipython>=8.0.0
 Requires-Dist: jupyter>=1.0.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: lxml>=4.9.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0.0; extra == "dev"
 Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
@@ -68,96 +70,251 @@ Dynamic: requires-dist
 Dynamic: requires-python
 Dynamic: summary
 
-# Forensic OSINT-to-Evidence Pipeline (FOEP)
+# 🕵️‍♂️ Forensic OSINT-to-Evidence Pipeline (FOEP)
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
+**Automated Multi-Source OSINT Collection, Correlation, and Reporting for Digital Forensics**
 
-FOEP is a novel framework that integrates **digital forensics** and **open-source intelligence (OSINT)** into a unified evidence-handling system. Traditional tools in these domains often operate in isolation—either focusing on internal breach artefacts or external intelligence. FOEP bridges this gap by correlating logs, memory dumps, and disk artefacts with social media traces, leaked databases, and other publicly available intelligence sources.
+---
 
-## ✨ Key Features
+## 📌 Overview
 
-- **Unified Evidence Model**: Normalizes forensic and OSINT data into a consistent schema
-- **Graph-Based Correlation**: Links entities across datasets using Neo4j
-- **Credibility Scoring**: Dynamically ranks intelligence by reliability and corroboration
-- **Legal Compliance**: Generates court-admissible reports with automated redaction
-- **Chain of Custody**: Tracks provenance and integrity for all evidence
-- **Modular Architecture**: Supports extensible ingestion, correlation, and reporting
+FOEP is a command-line forensic tool that automates the collection, correlation, and reporting of open-source intelligence (OSINT) from multiple public sources. It transforms raw OSINT data into structured, court-ready evidence with credibility scoring and knowledge graph visualization.
+
+### ✨ Key Features
+- **Multi-Source Collection**: GitHub, Twitter, Domain DNS, HIBP Breaches
+- **Auto-Enrichment**: Archive.org history, IP Geolocation, VirusTotal (optional)
+- **Credibility Scoring**: Evidence weighted by source reliability
+- **Knowledge Graph**: Neo4j-based entity correlation
+- **Court-Ready Reports**: HTML/PDF output with redacted internal fields
+- **Ethical Compliance**: Uses only public APIs — no scraping
+
+---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Python 3.10+
-- Neo4j 5+ (for graph correlation)
-- System dependencies for `dfvfs` (see [dfvfs installation](https://github.com/log2timeline/dfvfs#installation))
-
-### Installation
-
 ```bash
-# Clone repository
-git clone https://github.com/your-org/foep.git
-cd foep
-
-# Create virtual environment
-python -m venv foep-env
-source foep-env/bin/activate  # Linux/macOS
-# foep-env\Scripts\activate   # Windows
-
-# Install core dependencies
+# Clone and setup
+git clone https://github.com/yourusername/FOEP.git
+cd FOEP
+python3 -m venv foep-env
+source foep-env/bin/activate
 pip install -r requirements.txt
 
-# Install spaCy model (optional, for name redaction)
-python -m spacy download en_core_web_sm
-
-# Install development dependencies (optional)
-pip install -r requirements-dev.txt
-
-# Install Neo4j
-wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
-echo 'deb https://debian.neo4j.com stable 5' | sudo tee /etc/apt/sources.list.d/neo4j.list
-sudo apt update
-sudo apt install -y neo4j
-
-# Start Neo4j
+# Install Neo4j (optional but recommended)
+sudo apt install neo4j -y
+sudo neo4j-admin dbms set-initial-password neo4j
 sudo systemctl start neo4j
 
-# Set password via http://localhost:7474 (default: neo4j/neo4j)
-
-
-
-Basic Investigation Workflow
-
-# Create investigation directory
-mkdir -p investigations/case-001
-cd investigations/case-001
-
-# Step 1: Ingest Evidence
+# Run full forensic pipeline
 foep-ingest \
-  --log /path/to/logfile.log \
-  --disk /path/to/disk.img \
-  --memory /path/to/memory.raw \
-  --social "github:username" \
-  --social "twitter:handle" \
-  --breach "email@domain.com" \
-  --code "filename:.env password" \
+  --social "github:trailofbits" \
+  --social "twitter:jack" \
+  --domain "microsoft.com" \
+  --breach "account-exists@hibp-integration-tests.com" \
   --output evidence.json \
-  --case-id "CASE-001" \
-  --investigator "Your Name"
+  --case-id DEMO-2026
 
-# Step 2: Correlate Evidence
-foep-correlate \
-  --input evidence.json \
-  --output correlated.json \
-  --case-id "CASE-001" \
-  --investigator "Your Name"
+foep-correlate --input evidence.json --output correlated.json --case-id DEMO-2026
+foep-report --input correlated.json --output reports/ --case-id DEMO-2026 --format html
 
-# Step 3: Generate Report
-foep-report \
-  --input correlated.json \
-  --output reports/ \
-  --case-id "CASE-001" \
-  --investigator "Your Name" \
-  --title "Investigation Report" \
-  --description "Forensic analysis summary" \
-  --format pdf
+# View report
+xdg-open reports/foep_report_DEMO-2026_*.html
+```
+
+---
+
+## 📦 Installation
+
+### Prerequisites
+- Python 3.10+
+- Neo4j 5.x (optional)
+- `jq` (for JSON processing)
+
+### Step-by-Step Setup
+
+#### 1. **Install System Dependencies**
+```bash
+sudo apt update
+sudo apt install python3 python3-pip python3-venv neo4j jq -y
+```
+
+#### 2. **Setup Python Environment**
+```bash
+git clone https://github.com/yourusername/FOEP.git
+cd FOEP
+python3 -m venv foep-env
+source foep-env/bin/activate
+pip install -r requirements.txt
+```
+
+#### 3. **Configure Neo4j (Optional)**
+```bash
+# Set password
+sudo neo4j-admin dbms set-initial-password neo4j
+
+# Start service
+sudo systemctl enable neo4j
+sudo systemctl start neo4j
+
+# Verify
+sudo systemctl status neo4j
+```
+
+#### 4. **Configure API Keys (Optional)**
+Edit `config/config.yaml`:
+```yaml
+virustotal:
+  enabled: true
+  api_key: "YOUR_VIRUSTOTAL_KEY"
+
+shodan:
+  enabled: true
+  api_key: "YOUR_SHODAN_KEY"
+```
+
+> 💡 **Free API Keys**:  
+> - [VirusTotal](https://www.virustotal.com/gui/join-us) (500 req/day)  
+> - [Shodan](https://account.shodan.io/register) (100 req/month)
+
+---
+
+## 🧪 Usage Examples
+
+### Basic OSINT Collection
+```bash
+# Single source
+foep-ingest --domain "example.com" --output domain.json
+
+# Multi-source
+foep-ingest \
+  --social "github:user123" \
+  --social "twitter:user123" \
+  --breach "user@example.com" \
+  --output osint.json
+```
+
+### Full Forensic Pipeline
+```bash
+# 1. Collect evidence
+foep-ingest \
+  --social "github:trailofbits" \
+  --social "twitter:jack" \
+  --domain "microsoft.com" \
+  --breach "account-exists@hibp-integration-tests.com" \
+  --output evidence.json \
+  --case-id FORENSIC-2026
+
+# 2. Correlate entities
+foep-correlate --input evidence.json --output correlated.json --case-id FORENSIC-2026
+
+# 3. Generate report
+foep-report --input correlated.json --output reports/ --case-id FORENSIC-2026 --format html
+```
+
+### View Knowledge Graph
+1. Open [http://localhost:7474](http://localhost:7474)
+2. Login: `neo4j` / `neo4j`
+3. Run query:
+   ```cypher
+   MATCH (e:Evidence) RETURN e
+   ```
+
+
+---
+
+## 🏗️ Architecture
+
+```
+CLI → Ingestion → Normalization → Correlation → Reporting
+          │            │             │            │
+          ▼            ▼             ▼            ▼
+      GitHub       Evidence      Knowledge     HTML/PDF
+      Twitter      Schema         Graph        Report
+      Domain                     (Neo4j)
+      Breach
+```
+
+### Core Components
+- **Ingestion**: Collects raw data from OSINT sources
+- **Normalization**: Converts to `Evidence` schema with credibility scores
+- **Correlation**: Links related entities using Neo4j
+- **Reporting**: Generates redacted, court-ready outputs
+
+---
+
+## 📄 Sample Output
+
+### Evidence JSON
+```json
+{
+  "evidence_id": "github_user::trailofbits",
+  "entity_type": "username",
+  "entity_value": "trailofbits",
+  "observation_type": "osint_social",
+  "source": "github",
+  "metadata": {
+    "name": "Trail of Bits",
+    "public_repos": 247,
+    "followers": 5800
+  },
+  "credibility_score": 90
+}
+```
+
+### HTML Report Features
+- Clean evidence table
+- Credibility indicators
+- Redacted internal fields
+- Case metadata
+
+---
+
+## ⚙️ Configuration
+
+Edit `config/config.yaml`:
+
+```yaml
+# Enable/disable sources
+github:
+  enabled: true
+
+twitter:
+  enabled: true
+
+# API keys (optional)
+virustotal:
+  enabled: false
+  api_key: ""
+
+# Neo4j connection
+neo4j:
+  uri: "bolt://localhost:7687"
+  username: "neo4j"
+  password: "neo4j"
+```
+
+---
+
+## 🛡️ Ethical Compliance
+
+FOEP adheres to strict ethical guidelines:
+- ✅ Only uses **publicly available data**
+- ✅ Respects **robots.txt** and **rate limits**
+- ✅ No credential harvesting or private data access
+- ✅ Compliant with **GDPR** and **CCPA** for public data
+
+---
+
+## 📚 References
+
+- [Have I Been Pwned API](https://haveibeenpwned.com/API/v3)
+- [Neo4j Graph Data Modeling](https://neo4j.com/developer/guide-data-modeling/)
+- [OSINT Framework](https://osintframework.com/)
+
+
+## 🙏 Acknowledgements
+
+- Troy Hunt for [Have I Been Pwned](https://haveibeenpwned.com/)
+- Trail of Bits for public GitHub presence
+- Neo4j for open-source graph database
+
