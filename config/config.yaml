@@ -66,8 +66,8 @@ dnsdumpster:
 neo4j:
   uri: "bolt://localhost:7687"
   username: "neo4j"
-  password: "neo4j"  # ✅ Fixed: was "password"
-  database: "password"
+  password: "foep_security_2026"  # ✅ Updated for Neo4j 5.15
+  database: "neo4j"
 
 # Redaction
 redaction:
