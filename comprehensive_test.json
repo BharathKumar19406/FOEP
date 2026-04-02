@@ -6,7 +6,7 @@
     "observation_type": "osint_dns",
     "source": "dns",
     "metadata": {
-      "resolved_ip": "104.26.14.195"
+      "resolved_ip": "172.67.75.24"
     },
     "credibility_score": 70,
     "sha256_hash": null
@@ -26,9 +26,23 @@
     "sha256_hash": null
   },
   {
-    "evidence_id": "geo_ip::104.26.14.195",
+    "evidence_id": "archive_domain::trailofbits.com",
+    "entity_type": "domain",
+    "entity_value": "trailofbits.com",
+    "observation_type": "osint_historical",
+    "source": "archiveorg",
+    "metadata": {
+      "snapshot_count": 1000,
+      "first_seen": "20080529220936",
+      "last_seen": "20231107042617"
+    },
+    "credibility_score": 65,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "geo_ip::172.67.75.24",
     "entity_type": "ip_address",
-    "entity_value": "104.26.14.195",
+    "entity_value": "172.67.75.24",
     "observation_type": "osint_geo",
     "source": "ipgeolocation",
     "metadata": {

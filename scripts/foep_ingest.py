@@ -86,8 +86,10 @@ Examples:
 
     # OSINT sources
     parser.add_argument(
-        "--social", nargs="+", help="Social media queries (format: platform:identifier)"
+        "--social", nargs="+", help="Social media queries (format: platform:identifier, e.g., 'github:user' or 'twitter:handle')"
     )
+    parser.add_argument("--twitter", nargs="+", help="Twitter username searches")
+    parser.add_argument("--linkedin", nargs="+", help="LinkedIn profile searches")
     parser.add_argument(
         "--breach",
         nargs="+",
@@ -96,6 +98,27 @@ Examples:
     parser.add_argument("--code", nargs="+", help="Code repository search queries")
     parser.add_argument("--domain", nargs="+", help="Domain for OSINT enrichment")
     parser.add_argument("--vt-hash", nargs="+", help="VirusTotal file hash checks")
+    
+    # Threat Intelligence Sources
+    parser.add_argument("--otx-ip", nargs="+", help="OTX IP reputation checks")
+    parser.add_argument("--otx-domain", nargs="+", help="OTX domain reputation checks")
+    parser.add_argument("--otx-hash", nargs="+", help="OTX hash reputation checks")
+    
+    parser.add_argument("--abuseipdb", nargs="+", help="AbuseIPDB IP reputation checks")
+    
+    parser.add_argument("--shodan-ip", nargs="+", help="Shodan IP infrastructure checks")
+    
+    parser.add_argument("--censys-ip", nargs="+", help="Censys IP intelligence")
+    parser.add_argument("--censys-cert", nargs="+", help="Censys certificate lookup")
+    
+    parser.add_argument("--urlscan-url", nargs="+", help="URLScan URL scans")
+    parser.add_argument("--urlscan-domain", nargs="+", help="URLScan domain scans")
+    
+    parser.add_argument("--dumpstar-email", nargs="+", help="DumpStar email leak search")
+    parser.add_argument("--dumpstar-username", nargs="+", help="DumpStar username leak search")
+    parser.add_argument("--dumpstar-phone", nargs="+", help="DumpStar phone leak search")
+    
+    parser.add_argument("--archive-org", nargs="+", help="Archive.org URL history search")
 
     # Output and config
     parser.add_argument("--output", required=True, help="Output JSON file path")
@@ -121,18 +144,33 @@ Examples:
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    # ✅ VALIDATION: Include --domain and --vt-hash
+    # ✅ VALIDATION: Include all OSINT sources
     has_forensic = any([args.disk, args.memory, args.log, args.log_dir])
     has_osint = any([
         args.social, 
+        args.twitter,
+        args.linkedin,
         args.breach, 
         args.code, 
         args.domain,
-        args.vt_hash
+        args.vt_hash,
+        args.otx_ip,
+        args.otx_domain,
+        args.otx_hash,
+        args.abuseipdb,
+        args.shodan_ip,
+        args.censys_ip,
+        args.censys_cert,
+        args.urlscan_url,
+        args.urlscan_domain,
+        args.dumpstar_email,
+        args.dumpstar_username,
+        args.dumpstar_phone,
+        args.archive_org,
     ])
     if not (has_forensic or has_osint):
         parser.error(
-            "At least one input source (--disk, --memory, --log, --social, --domain, etc.) is required"
+            "At least one input source required (--social, --twitter, --linkedin, --domain, --otx-ip, --shodan-ip, etc.)"
         )
 
     # Load configuration
@@ -187,6 +225,109 @@ Examples:
             from foep.ingest.osint.virustotal import collect_vt_hash
             for h in args.vt_hash:
                 osint_evidence.extend(collect_vt_hash(h, config.model_dump()))
+
+        # ✅ TWITTER COLLECTION
+        if args.twitter:
+            from foep.ingest.osint.social import TwitterCollector
+            twitter_collector = TwitterCollector(config)
+            for username in args.twitter:
+                logger.info(f"Collecting Twitter OSINT for: {username}")
+                osint_evidence.extend(twitter_collector.collect_user(username))
+                osint_evidence.extend(twitter_collector.collect_tweets(username, max_tweets=10))
+
+        # ✅ LINKEDIN COLLECTION
+        if args.linkedin:
+            from foep.ingest.osint.social import LinkedInCollector
+            linkedin_collector = LinkedInCollector(config)
+            for profile in args.linkedin:
+                logger.info(f"Collecting LinkedIn OSINT for: {profile}")
+                osint_evidence.extend(linkedin_collector.collect_profile(profile))
+
+        # ✅ OTX THREAT INTELLIGENCE
+        if args.otx_ip:
+            from foep.ingest.osint.otx import collect_otx_intelligence
+            for ip in args.otx_ip:
+                logger.info(f"Checking OTX for IP: {ip}")
+                osint_evidence.extend(collect_otx_intelligence(ip, 'ip', config.model_dump()))
+
+        if args.otx_domain:
+            from foep.ingest.osint.otx import collect_otx_intelligence
+            for domain in args.otx_domain:
+                logger.info(f"Checking OTX for domain: {domain}")
+                osint_evidence.extend(collect_otx_intelligence(domain, 'domain', config.model_dump()))
+
+        if args.otx_hash:
+            from foep.ingest.osint.otx import collect_otx_intelligence
+            for hash_val in args.otx_hash:
+                logger.info(f"Checking OTX for hash: {hash_val}")
+                osint_evidence.extend(collect_otx_intelligence(hash_val, 'hash', config.model_dump()))
+
+        # ✅ ABUSEIPDB CHECK
+        if args.abuseipdb:
+            from foep.ingest.osint.abuseipdb import collect_abuseipdb_intelligence
+            for ip in args.abuseipdb:
+                logger.info(f"Checking AbuseIPDB for: {ip}")
+                osint_evidence.extend(collect_abuseipdb_intelligence(ip, config.model_dump()))
+
+        # ✅ SHODAN CHECK
+        if args.shodan_ip:
+            from foep.ingest.osint.shodan import ShodanCollector
+            shodan_collector = ShodanCollector(config.model_dump())
+            for ip in args.shodan_ip:
+                logger.info(f"Checking Shodan for IP: {ip}")
+                osint_evidence.extend(shodan_collector.check_ip(ip))
+
+        # ✅ CENSYS CHECK
+        if args.censys_ip:
+            from foep.ingest.osint.censys import collect_censys_data
+            for ip in args.censys_ip:
+                logger.info(f"Checking Censys for IP: {ip}")
+                osint_evidence.extend(collect_censys_data(ip, 'ip', config.model_dump()))
+
+        if args.censys_cert:
+            from foep.ingest.osint.censys import collect_censys_data
+            for cert in args.censys_cert:
+                logger.info(f"Checking Censys for certificate: {cert}")
+                osint_evidence.extend(collect_censys_data(cert, 'certificate', config.model_dump()))
+
+        # ✅ URLSCAN CHECK
+        if args.urlscan_url:
+            from foep.ingest.osint.urlscan import collect_urlscan_data
+            for url in args.urlscan_url:
+                logger.info(f"Scanning URL with URLScan: {url}")
+                osint_evidence.extend(collect_urlscan_data(url, 'url', config.model_dump()))
+
+        if args.urlscan_domain:
+            from foep.ingest.osint.urlscan import collect_urlscan_data
+            for domain in args.urlscan_domain:
+                logger.info(f"Scanning domain with URLScan: {domain}")
+                osint_evidence.extend(collect_urlscan_data(domain, 'domain', config.model_dump()))
+
+        # ✅ DUMPSTAR LEAK SEARCH
+        if args.dumpstar_email:
+            from foep.ingest.osint.dumpstar import collect_dumpstar_leaks
+            for email in args.dumpstar_email:
+                logger.info(f"Searching DumpStar for email: {email}")
+                osint_evidence.extend(collect_dumpstar_leaks(email, 'email', config.model_dump()))
+
+        if args.dumpstar_username:
+            from foep.ingest.osint.dumpstar import collect_dumpstar_leaks
+            for username in args.dumpstar_username:
+                logger.info(f"Searching DumpStar for username: {username}")
+                osint_evidence.extend(collect_dumpstar_leaks(username, 'username', config.model_dump()))
+
+        if args.dumpstar_phone:
+            from foep.ingest.osint.dumpstar import collect_dumpstar_leaks
+            for phone in args.dumpstar_phone:
+                logger.info(f"Searching DumpStar for phone: {phone}")
+                osint_evidence.extend(collect_dumpstar_leaks(phone, 'phone', config.model_dump()))
+
+        # ✅ ARCHIVE.ORG URL HISTORY
+        if args.archive_org:
+            from foep.ingest.osint.archiveorg import collect_wayback_data
+            for url in args.archive_org:
+                logger.info(f"Checking Archive.org for URL: {url}")
+                osint_evidence.extend(collect_wayback_data(url, config.model_dump()))
 
         all_evidence.extend(osint_evidence)
         logger.info(f"Collected {len(osint_evidence)} OSINT items")

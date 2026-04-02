@@ -178,14 +178,135 @@ pip install -r requirements.txt
 # (Optional) Install development dependencies for testing
 pip install -r requirements-dev.txt
 
-# Install package in development mode
+# Install package in development mode (enables CLI commands globally)
 pip install -e .
 
 # Verify installation
-python -c "from foep.core.pipeline import FOEPPipeline; print('✅ FOEP installed successfully')"
+foep-ingest --help  # Should show CLI help without error
 ```
 
-### Step 5: (Optional) Setup Neo4j for Graph Correlation
+---
+
+## 🎯 Quick Start: Using FOEP via CLI Commands
+
+FOEP provides three main CLI commands for the complete forensic pipeline. **NO Python code changes needed!**
+
+### Command 1: `foep-ingest` - Collect Evidence
+
+Gather evidence from forensics, OSINT, and threat intelligence sources.
+
+```bash
+# Basic usage - GitHub evidence
+foep-ingest \
+  --social "github:username" \
+  --output evidence.json \
+  --case-id CASE-2024-001
+
+# Full example with multiple sources
+foep-ingest \
+  --social "github:trailofbits" \
+  --social "twitter:jack" \
+  --breach "admin@company.com" \
+  --domain "example.com" \
+  --vt-hash "d41d8cd98f00b204e9800998ecf8427e" \
+  --output evidence.json \
+  --case-id FORENSIC-2024-001 \
+  --investigator "John Doe" \
+  --verbose
+
+# With forensic artifacts
+foep-ingest \
+  --disk /path/to/image.E01 \
+  --memory /path/to/memory.dump \
+  --log /var/log/auth.log \
+  --output forensic_evidence.json \
+  --case-id CASE-2024-001 \
+  --verbose
+```
+
+### Command 2: `foep-correlate` - Correlate & Analyze
+
+Link entities, detect relationships, and identify threats.
+
+```bash
+# Basic correlation
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id FORENSIC-2024-001
+
+# With verbose output
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id FORENSIC-2024-001 \
+  --investigator "Jane Smith" \
+  --verbose
+```
+
+### Command 3: `foep-report` - Generate Forensic Report
+
+Create court-ready reports with threat analysis and chain of custody.
+
+```bash
+# Generate HTML report
+foep-report \
+  --input correlated.json \
+  --output reports/ \
+  --case-id FORENSIC-2024-001 \
+  --format html \
+  --title "Case Investigation Report" \
+  --organization "Cyber Forensics Lab"
+
+# Generate PDF report
+foep-report \
+  --input correlated.json \
+  --output reports/ \
+  --case-id FORENSIC-2024-001 \
+  --format pdf \
+  --title "Incident Response Report" \
+  --description "Comprehensive threat analysis and evidence correlation" \
+  --organization "SOC Team"
+```
+
+### Complete Pipeline Example
+
+```bash
+# Step 1: Collect evidence from multiple sources
+foep-ingest \
+  --social "github:attacker" \
+  --domain "malicious.com" \
+  --breach "suspect@email.com" \
+  --output evidence.json \
+  --case-id INVESTIGATION-2024 \
+  --investigator "Security Team"
+
+# Step 2: Correlate entities and detect threats
+foep-correlate \
+  --input evidence.json \
+  --output correlated.json \
+  --case-id INVESTIGATION-2024 \
+  --verbose
+
+# Step 3: Generate comprehensive report
+foep-report \
+  --input correlated.json \
+  --output case_reports/ \
+  --case-id INVESTIGATION-2024 \
+  --format html \
+  --title "Security Investigation Report" \
+  --organization "Incident Response Team"
+
+# Results:
+# ✅ case_reports/report.html - Interactive forensic report
+# ✅ case_reports/threat_summary.json - Threat analysis data
+# ✅ case_reports/chain_of_custody.txt - Evidence chain of custody
+echo "✅ Investigation complete! Check case_reports/ for all generated files"
+```
+
+---
+
+## 🔧 Step 5: (Optional) Setup Neo4j for Graph Correlation
 
 #### **Option A: Docker (Recommended)**
 ```bash
@@ -693,7 +814,22 @@ EOF
 
 ## 🧪 Testing
 
-### Run All Tests
+### Verify CLI Commands Work
+
+```bash
+# Test foep-ingest CLI
+foep-ingest --help
+
+# Test foep-correlate CLI  
+foep-correlate --help
+
+# Test foep-report CLI
+foep-report --help
+
+# All commands should display usage and options without error
+```
+
+### Run All Unit Tests
 ```bash
 # Using pytest
 python -m pytest tests/ -v
@@ -715,6 +851,15 @@ python -m pytest tests/integration/ -v
 
 # Specific test file
 python -m pytest tests/unit/test_normalize.py -v
+
+# Threat detection tests
+python -m pytest tests/ -k threat -v
+```
+
+### Expected Test Results
+```
+tests/unit/test_normalize.py ..................... [100%]
+✅ 17 passed in 0.18s
 ```
 
 ---
@@ -1086,9 +1231,340 @@ FOEP adheres to strict ethical guidelines:
 - [OSINT Framework](https://osintframework.com/)
 
 
+---
+
+## 🗄️ Neo4j Graph Database Setup & Usage
+
+> **Note**: Neo4j is **OPTIONAL**. All FOEP functionality works without it. Neo4j only enables graph visualization and complex relationship queries.
+
+### Option 1: Docker Setup (Recommended for Kali/Ubuntu)
+
+```bash
+# Install Docker (if not already installed)
+curl -fsSL https://get.docker.com -o get-docker.sh && sudo bash get-docker.sh
+
+# Start Neo4j container
+docker run -d \
+  --name foep-neo4j \
+  -p 7474:7474 \
+  -p 7687:7687 \
+  -e NEO4J_AUTH=neo4j/foep-password \
+  neo4j:5.0
+
+# Wait for startup
+sleep 30
+
+# Verify it's running
+docker ps | grep foep-neo4j
+
+# Access Neo4j Browser
+# Open http://localhost:7474 in your browser
+# Login: neo4j / foep-password
+```
+
+### Option 2: Ubuntu/Debian Native Install
+
+```bash
+# Add Neo4j repository
+curl https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+sudo echo 'deb https://debian.neo4j.com stable latest' | tee /etc/apt/sources.list.d/neo4j.list
+
+# Install
+sudo apt update
+sudo apt install -y neo4j
+
+# Start service
+sudo systemctl start neo4j
+sudo systemctl enable neo4j
+
+# View service status
+sudo systemctl status neo4j
+
+# Access Neo4j Browser
+# http://localhost:7474
+# Default username: neo4j
+# Default password: neo4j (change on first login)
+```
+
+### Option 3: macOS Homebrew
+
+```bash
+# Install via Homebrew
+brew tap neo4j/brew
+brew install neo4j
+
+# Start Neo4j
+neo4j start
+
+# Access at http://localhost:7474
+```
+
+### Configure FOEP to Use Neo4j
+
+```yaml
+# Edit config/config.yaml
+neo4j:
+  enabled: true
+  uri: "bolt://localhost:7687"
+  username: "neo4j"
+  password: "foep-password"  # Or your password
+```
+
+### Query Neo4j Browser
+
+After running `foep-correlate`, query the graph:
+
+```cypher
+# View all evidence nodes
+MATCH (e:Evidence) RETURN e LIMIT 20;
+
+# View entity relationships
+MATCH (e:Evidence)-[:RELATED_TO]-(e2:Evidence) 
+RETURN e, e2 LIMIT 10;
+
+# Find threats
+MATCH (e:Evidence)-[:CONTAINS_THREAT]-(t:Threat) 
+RETURN e, t;
+
+# Complex correlation
+MATCH (e1:Evidence)-[:RELATED_TO*2]-(e2:Evidence)
+WHERE e1.entity_type = 'domain' AND e2.entity_type = 'ip'
+RETURN e1, e2;
+```
+
+### Troubleshooting Neo4j
+
+| Issue | Solution |
+|-------|----------|
+| **Connection refused** | Check if running: `docker ps` or `sudo systemctl status neo4j` |
+| **Port 7687 already in use** | `sudo lsof -i :7687` to find process, then stop it |
+| **Auth failed** | Reset password: `sudo neo4j-admin dbms set-initial-password` |
+| **Browser won't load** | Wait 30 seconds after start, check network: `curl http://localhost:7474` |
+| **Out of memory** | Increase heap: Edit `neo4j.conf`, set `dbms.memory.heap.max_size=2G` |
+
+---
+
+## 🚨 Threat Detection-Specific Tips
+
+### Only Specific Entity Types Trigger Threat Detection
+
+✅ **CHECKED by Threat Detectors:**
+- `entity_type: "hash"` - Malware hash detection (MD5, SHA256)
+- `entity_type: "ip"` - Malicious IP detection (Shodan, AbuseIPDB)
+- `entity_type: "domain"` - C2 domain detection
+- `entity_type: "url"` - Malicious URL detection
+- `entity_type: "file"` - File behavior analysis
+- `entity_type: "command_line"` - LOLBin detection
+
+❌ **NOT CHECKED (OSINT-only):**
+- `entity_type: "username"` - GitHub/Twitter users are not threat-checked
+- `entity_type: "email"` - HIBP results are not threat-checked
+- `entity_type: "person_name"` - Names are not threat-checked
+
+### To Trigger Threat Detection
+
+**Option 1: Use Malware Hashes**
+```bash
+foep-ingest \
+  --vt-hash "5d41402abc4b2a76b9719d911017c592" \
+  --output malware_evidence.json
+# Look for threat_intel in metadata if hash is known malware
+```
+
+**Option 2: Use Suspicious Infrastructure**
+```bash
+foep-ingest \
+  --domain "command-and-control.com" \
+  --output infrastructure.json
+# Shodan may identify exposed services
+```
+
+**Option 3: Use Forensic Analysis**
+```bash
+foep-ingest \
+  --disk /path/to/disk.E01 \
+  --output forensic.json
+# File hashes extracted will be checked
+```
+
+**Option 4: Analyze with Shodan**
+```bash
+foep-ingest \
+  --shodan "192.168.1.0/24" \
+  --output network_scan.json
+# IPs will be checked against threat intelligence
+```
+
+### Why No Threats in OSINT Results?
+
+**This is NORMAL.** GitHub users, Twitter accounts, and public domains are not malicious by default. Threat detection only flags:
+- Known malware hashes
+- Botnet C2 IPs
+- Phishing domains
+- Suspicious infrastructure
+
+Public OSINT results (legitimate usernames, public domains) will NOT have threat data.
+
+---
+
+## 📁 Generated JSON Files Reference
+
+### evidence.json
+**Purpose:** Raw ingested evidence  
+**Contents:** 10-50 items from OSINT sources
+**Format:**
+```json
+[
+  {
+    "evidence_id": "github::user_torvalds",
+    "entity_type": "username",
+    "entity_value": "torvalds",
+    "source": "github",
+    "credibility_score": 90,
+    "metadata": { /* source-specific data */ }
+  },
+  ...
+]
+```
+
+### correlated.json
+**Purpose:** Evidence after entity linking  
+**Format:**
+```json
+[
+  {
+    "evidence_id": "dns::domain_example.com",
+    "entity_type": "domain",
+    "metadata": {
+      "linkage_group_id": "group_0",
+      "linked_entities": ["ip_192.168.1.100"],
+      "credibility_adjustments": { "corroboration_bonus": 5 }
+    }
+  },
+  ...
+]
+```
+
+### custody_*.json
+**Purpose:** Chain of custody documentation  
+**Contents:**
+```json
+{
+  "custody_header": {
+    "case_id": "CASE-2024-001",
+    "investigator": "Your Name",
+    "generated_at": "ISO timestamp"
+  },
+  "evidence_summary": { /* Statistics */ },
+  "evidence_items": [ /* All evidence */ ]
+}
+```
+
+### threat_intelligence.json (Demo Output)
+**Purpose:** Parsed threat intelligence from 3 sources  
+**Contains:**  
+- AbuseIPDB results for IPs
+- OTX results for domains/hashes
+- Shodan infrastructure data
+
+### verdict_report.json (Demo Output)
+**Purpose:** Automated forensic verdict  
+**Contains:**
+- Verdict: MALICIOUS / SUSPICIOUS / BENIGN
+- Confidence level: 0-100%
+- Threat evidences identified
+- Actionable recommendations
+
+---
+
+## 🔍 Troubleshooting Common Issues
+
+| Issue | Symptom | Solution |
+|-------|---------|----------|
+| **No threat_intel in JSON** | Evidence lacks `metadata.threat_intel` key | ✅ NORMAL for OSINT-only. See "Threat Detection-Specific Tips" above |
+| **API Rate Limited** | `429 Too Many Requests` error | Add API keys to `config/config.yaml` or wait between requests |
+| **Neo4j Connection Fails** | `Connection refused: 127.0.0.1:7687` | ✅ NOT FATAL. Start Docker or native Neo4j per section above |
+| **GitHub API Error** | `GitHub API error or timeout` | Check GitHub token in config, verify internet connection |
+| **VirusTotal Not Working** | No VT results in output | Enable and add API key to `config/config.yaml` |
+| **Disk Image Not Found** | `FileNotFoundError` for disk path | Verify disk image path is correct and readable |
+| **Module Import Error** | `ModuleNotFoundError: foep` | Run `pip install -e .` from project root |
+
+---
+
+## 📊 Data Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────┐
+│             FOEP PIPELINE                           │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  SOURCE COLLECTION                                  │
+│  ├─ Forensic: Disk → Files, Hashes, Metadata      │
+│  ├─ Forensic: Memory → Running processes            │
+│  ├─ Forensic: Logs → Events, Timestamps             │
+│  ├─ OSINT: GitHub → Users, Repos, Activity          │
+│  ├─ OSINT: Twitter → Posts, Followers               │
+│  ├─ OSINT: Domain → NS, MX, DNS records             │
+│  ├─ OSINT: HIBP → Breach records                    │
+│  ├─ OSINT: VirusTotal → Hash reputation             │
+│  └─ OSINT: Shodan → Infrastructure exposure         │
+│                     ↓                                │
+│          evidence.json (Raw)                         │
+│         [10-50 items collected]                     │
+│                     ↓                                │
+│  THREAT DETECTION (Optional)                        │
+│  ├─ HashDetector: Check VM/Shodan for file hashes   │
+│  ├─ IPDetector: AbuseIPDB, Shodan for IPs           │
+│  ├─ DomainDetector: OTX, Shodan for domains         │
+│  ├─ URLDetector: VirusTotal for URLs                │
+│  └─ (Usernames/Emails: No threat check)             │
+│                     ↓                                │
+│  If threats found → metadata.threat_intel populated  │
+│  If no threats → No threat_intel key (normal)       │
+│                     ↓                                │
+│  ENTITY LINKING & CREDIBILITY                       │
+│  ├─ Extract entities (IP, domain, email, etc.)      │
+│  ├─ Link related entities (e.g., IP → Domain)       │
+│  ├─ Calculate corroboration scores                  │
+│  └─ Adjust credibility (+5 for corroboration)       │
+│                     ↓                                │
+│         correlated.json (Enhanced)                   │
+│       [Same items + linkage + scoring]              │
+│                     ↓                                │
+│  OPTIONAL: Neo4j Graph Creation                     │
+│  ├─ Create :Evidence nodes                          │
+│  ├─ Create :Incident nodes (if threats)             │
+│  └─ Create relationships (-[:RELATED_TO]->)         │
+│                     ↓                                │
+│  REPORT GENERATION                                  │
+│  ├─ HTML Report with chain of custody               │
+│  ├─ Custody JSON with evidence metadata             │
+│  ├─ Threat summary (if threats detected)            │
+│  └─ Redacted version (PII removed)                  │
+│                     ↓                                │
+│    reports/foep_report_*.html (Court-ready)         │
+│    reports/custody_*.json (Digital chain)           │
+│    reports/threat_summary.json (Analysis)           │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🎯 Performance Tips
+
+- **For large disk images**: Use `--disk /path/image.E01 --output out.json --preserve=recent` to limit recent file analysis
+- **For batch processing**: Run multiple `foep-ingest` commands in parallel with different `--case-id` values
+- **For Neo4j**: Increase heap size in `neo4j.conf` if handling 1000+ evidence items
+- **For API rates**: Configure API keys in `config/config.yaml` to increase quotas
+
+---
+
 ## 🙏 Acknowledgements
 
 - Troy Hunt for [Have I Been Pwned](https://haveibeenpwned.com/)
 - Trail of Bits for public GitHub presence
 - Neo4j for open-source graph database
+- Shodan.io for infrastructure data
+- AlienVault OTX for threat intelligence
 

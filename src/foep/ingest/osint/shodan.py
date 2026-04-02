@@ -8,12 +8,17 @@ logger = logging.getLogger(__name__)
 class ShodanCollector:
     BASE_URL = "https://api.shodan.io"
 
-    def __init__(self, config):
-        self.enabled = getattr(config.shodan, 'enabled', False)
-        self.api_key = getattr(config.shodan, 'api_key', "")
+    def __init__(self, config: Dict[str, Any]):
+        """Initialize Shodan collector with config dict."""
+        self.config = config if isinstance(config, dict) else config.model_dump() if hasattr(config, 'model_dump') else {}
+        shodan_config = self.config.get('shodan', {})
+        self.enabled = shodan_config.get('enabled', False)
+        self.api_key = shodan_config.get('api_key', "")
 
     def check_ip(self, ip: str) -> Generator[Evidence, None, None]:
+        """Check IP on Shodan."""
         if not self.enabled or not self.api_key:
+            logger.warning("Shodan not enabled or API key missing")
             return
 
         url = f"{self.BASE_URL}/shodan/host/{ip}?key={self.api_key}"
