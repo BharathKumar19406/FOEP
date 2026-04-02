@@ -247,7 +247,9 @@ class TwitterCollector(OSINTCollector):
             logger.error(f"Unexpected error: {e}")
 
     def collect_tweets(self, username: str, max_tweets: int = 10) -> Generator[Evidence, None, None]:
-        return 
+        # Twitter v2 API tweets endpoint requires Academic Access (not Essential)
+        logger.warning(f"Twitter tweets collection requires Academic Access tier (not implemented)")
+        return iter(())  # Return empty iterator instead of None
 
 # --- LINKEDIN (Public Profiles Only) ---
 

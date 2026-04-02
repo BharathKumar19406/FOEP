@@ -1,0 +1,380 @@
+[
+  {
+    "evidence_id": "github_user::torvalds",
+    "entity_type": "username",
+    "entity_value": "torvalds",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "Linus Torvalds",
+      "bio": null,
+      "location": "Portland, OR",
+      "public_repos": 11,
+      "followers": 294425,
+      "profile_url": "https://github.com/torvalds"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/1590A",
+    "entity_type": "repo",
+    "entity_value": "torvalds/1590A",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "1590A",
+      "description": "Random odd guitar pedal design in kicad",
+      "url": "https://github.com/torvalds/1590A",
+      "language": "OpenSCAD",
+      "created_at": "2025-03-01T04:36:29Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/AudioNoise",
+    "entity_type": "repo",
+    "entity_value": "torvalds/AudioNoise",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "AudioNoise",
+      "description": "Random digital audio effects",
+      "url": "https://github.com/torvalds/AudioNoise",
+      "language": "C",
+      "created_at": "2026-01-09T02:33:29Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/GuitarPedal",
+    "entity_type": "repo",
+    "entity_value": "torvalds/GuitarPedal",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "GuitarPedal",
+      "description": "Linus learns analog circuits",
+      "url": "https://github.com/torvalds/GuitarPedal",
+      "language": "C",
+      "created_at": "2025-09-17T01:01:29Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/HunspellColorize",
+    "entity_type": "repo",
+    "entity_value": "torvalds/HunspellColorize",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "HunspellColorize",
+      "description": "Wrapper around 'less' to colorize spelling mistakes using Hunspell",
+      "url": "https://github.com/torvalds/HunspellColorize",
+      "language": "C",
+      "created_at": "2026-01-18T19:57:03Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/libdc-for-dirk",
+    "entity_type": "repo",
+    "entity_value": "torvalds/libdc-for-dirk",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "libdc-for-dirk",
+      "description": "Only use for syncing with Dirk, don't use for anything else",
+      "url": "https://github.com/torvalds/libdc-for-dirk",
+      "language": "C",
+      "created_at": "2017-01-17T00:25:49Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/libgit2",
+    "entity_type": "repo",
+    "entity_value": "torvalds/libgit2",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "libgit2",
+      "description": "A cross-platform, linkable library implementation of Git that you can use in your application.",
+      "url": "https://github.com/torvalds/libgit2",
+      "language": "C",
+      "created_at": "2022-07-30T03:30:56Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/linux",
+    "entity_type": "repo",
+    "entity_value": "torvalds/linux",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "linux",
+      "description": "Linux kernel source tree",
+      "url": "https://github.com/torvalds/linux",
+      "language": "C",
+      "created_at": "2011-09-04T22:48:12Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/pesconvert",
+    "entity_type": "repo",
+    "entity_value": "torvalds/pesconvert",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "pesconvert",
+      "description": "Brother PES file converter",
+      "url": "https://github.com/torvalds/pesconvert",
+      "language": "C",
+      "created_at": "2017-12-04T21:58:56Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/subsurface-for-dirk",
+    "entity_type": "repo",
+    "entity_value": "torvalds/subsurface-for-dirk",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "subsurface-for-dirk",
+      "description": "Do not use - the real upstream is  Subsurface-divelog/subsurface",
+      "url": "https://github.com/torvalds/subsurface-for-dirk",
+      "language": "C++",
+      "created_at": "2017-01-11T18:03:01Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/test-tlb",
+    "entity_type": "repo",
+    "entity_value": "torvalds/test-tlb",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "test-tlb",
+      "description": "Stupid memory latency and TLB tester",
+      "url": "https://github.com/torvalds/test-tlb",
+      "language": "C",
+      "created_at": "2017-03-24T20:06:37Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "github_repo::torvalds/uemacs",
+    "entity_type": "repo",
+    "entity_value": "torvalds/uemacs",
+    "observation_type": "osint_post",
+    "source": "github",
+    "metadata": {
+      "name": "uemacs",
+      "description": "Random version of microemacs with my private modificatons",
+      "url": "https://github.com/torvalds/uemacs",
+      "language": "C",
+      "created_at": "2018-01-17T22:32:21Z"
+    },
+    "credibility_score": 90,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "dns::google.com",
+    "entity_type": "domain",
+    "entity_value": "google.com",
+    "observation_type": "osint_dns",
+    "source": "dns",
+    "metadata": {
+      "resolved_ip": "142.250.207.174"
+    },
+    "credibility_score": 70,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "vt_domain::google.com",
+    "entity_type": "domain",
+    "entity_value": "google.com",
+    "observation_type": "osint_reputation",
+    "source": "virustotal",
+    "metadata": {
+      "malicious_engines": 0,
+      "total_engines": 94,
+      "reputation": "clean"
+    },
+    "credibility_score": 85,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "archive_domain::google.com",
+    "entity_type": "domain",
+    "entity_value": "google.com",
+    "observation_type": "osint_historical",
+    "source": "archiveorg",
+    "metadata": {
+      "snapshot_count": 1000,
+      "first_seen": "19981111184551",
+      "last_seen": "20010602234130"
+    },
+    "credibility_score": 65,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "geo_ip::142.250.207.174",
+    "entity_type": "ip_address",
+    "entity_value": "142.250.207.174",
+    "observation_type": "osint_geo",
+    "source": "ipgeolocation",
+    "metadata": {
+      "country": "United States",
+      "isp": "Google LLC",
+      "latitude": 37.4225,
+      "longitude": -122.085
+    },
+    "credibility_score": 75,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "dns::github.com",
+    "entity_type": "domain",
+    "entity_value": "github.com",
+    "observation_type": "osint_dns",
+    "source": "dns",
+    "metadata": {
+      "resolved_ip": "20.207.73.82"
+    },
+    "credibility_score": 70,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "vt_domain::github.com",
+    "entity_type": "domain",
+    "entity_value": "github.com",
+    "observation_type": "osint_reputation",
+    "source": "virustotal",
+    "metadata": {
+      "malicious_engines": 0,
+      "total_engines": 94,
+      "reputation": "clean"
+    },
+    "credibility_score": 85,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "geo_ip::20.207.73.82",
+    "entity_type": "ip_address",
+    "entity_value": "20.207.73.82",
+    "observation_type": "osint_geo",
+    "source": "ipgeolocation",
+    "metadata": {
+      "country": "India",
+      "isp": "Microsoft Corporation",
+      "latitude": 18.5144,
+      "longitude": 73.864235
+    },
+    "credibility_score": 75,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "otx_ip::8.8.8.8",
+    "entity_type": "ip_address",
+    "entity_value": "8.8.8.8",
+    "observation_type": "osint_reputation",
+    "source": "otx",
+    "metadata": {
+      "reputation": "benign",
+      "pulse_count": 0,
+      "threat_indicators": 0,
+      "whitelisted": false
+    },
+    "credibility_score": 60,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "otx_domain::google.com",
+    "entity_type": "domain",
+    "entity_value": "google.com",
+    "observation_type": "osint_reputation",
+    "source": "otx",
+    "metadata": {
+      "reputation": "benign",
+      "pulse_count": 0,
+      "threat_indicators": 0,
+      "whitelisted": false
+    },
+    "credibility_score": 65,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "shodan_ip::1.1.1.1",
+    "entity_type": "ip_address",
+    "entity_value": "1.1.1.1",
+    "observation_type": "osint_exposure",
+    "source": "shodan",
+    "metadata": {
+      "open_ports": [
+        161,
+        2082,
+        2083,
+        2052,
+        2086,
+        2087,
+        80,
+        8880,
+        8080,
+        4500,
+        53,
+        8443,
+        443,
+        2096
+      ],
+      "operating_system": null,
+      "isp": "Cloudflare, Inc."
+    },
+    "credibility_score": 80,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "urlscan_domain::github.com",
+    "entity_type": "domain",
+    "entity_value": "github.com",
+    "observation_type": "osint_reputation",
+    "source": "urlscan",
+    "metadata": {
+      "latest_scan_id": "019d4e3e-fc27-765f-9321-98114cd76d5e",
+      "latest_scan_time": "https://urlscan.io/api/v1/result/019d4e3e-fc27-765f-9321-98114cd76d5e/",
+      "page_title": "",
+      "page_ip": "199.36.158.100",
+      "total_scans": 100
+    },
+    "credibility_score": 65,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "archive_url::https://google.com",
+    "entity_type": "url",
+    "entity_value": "https://google.com",
+    "observation_type": "osint_historical",
+    "source": "archiveorg",
+    "metadata": {
+      "snapshot_count": 100,
+      "first_snapshot": "19981111184551",
+      "last_snapshot": "20000519231943"
+    },
+    "credibility_score": 65,
+    "sha256_hash": null
+  }
+]
