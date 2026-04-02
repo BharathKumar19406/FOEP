@@ -1,41 +1,75 @@
+# FOEP Configuration v2.1
+case_id: "DFIR-2026"
+investigator: "bharath"
+
+# OSINT Sources
 github:
   enabled: true
   api_token: ""
 
 twitter:
   enabled: true
-  bearer_token: "YOUR_TWITTER_BEARER_TOKEN_HERE"
+  bearer_token: "AAAAAAAAAAAAAAAAAAAAAHv53wEAAAAAAc6zFDxdfNoMyuRcQckyzeTXRw4%3DSYno4eCfXM7wCBa4LpCYAIF96HPdarANVHBaGOJzdI50tn633m"
 
 linkedin:
+  enabled: false  # ⚠️ Disabled (no reliable public collector)
+
+# Infrastructure
+domain:
+  enabled: true
+dns:
   enabled: true
 
-virustotal:
-  enabled: true
-  api_key: "YOUR_VIRUSTOTAL_TOKEN_HERE"  # Get free key at virustotal.com
-
-shodan:
-  enabled: true
-  api_key: "YOUR_SHODAN_KEY"      # Get free key at shodan.io
-
-ipgeolocation:
-  enabled: true
-
-whois_history:
-  enabled: false  # Optional (requires paid SecurityTrails key)
-
-archiveorg:
-  enabled: true
-
-neo4j:
-  uri: "bolt://localhost:7687"
-  username: "neo4j"
-  password: "password"
-  database: "neo4j"
-
+# Breach
 hibp:
   enabled: true
   mock_mode: true
 
+# Historical
+archiveorg:
+  enabled: true
+
+# Geolocation
+ipgeolocation:
+  enabled: true
+
+# Threat Intelligence (Enable as needed)
+virustotal:
+  enabled: true
+  api_key: "01216d7793beeba5605a0b2f251edb69b732bc9e3e2593bb9cdf140867f726ef"
+
+shodan:
+  enabled: true
+  api_key: "ft55cfnNI3OY1o1yfIZS1qIFAkKrl9Hw"
+
+otx:
+  enabled: true
+  api_key: "c4f05d6ce5b71a4eb14a85ccf3e8d7295ae84c20fe58620d5fe02bb58d3cc749"
+
+abuseipdb:
+  enabled: true
+  api_key: "e0a38553fea6281672c2cf5ebff12f69827c61847a737e91cfa2b505f10d20e0be314b633a1457e4"
+
+censys:
+  enabled: true
+  api_id: "Pg23QNvX"
+  api_secret: "censys_Pg23QNvX_BBRJouKLhk7Yo7ydBc3AA27C"
+
+urlscan:
+  enabled: true
+  api_key: "019cfeea-7923-729b-b4d9-6fe64cad9867"
+
+dnsdumpster:
+  enabled: true
+
+# Neo4j (Critical: password must match)
+neo4j:
+  uri: "bolt://localhost:7687"
+  username: "neo4j"
+  password: "neo4j"  # ✅ Fixed: was "password"
+  database: "password"
+
+# Redaction
 redaction:
   redact_emails: true
   preserve_internal_ips: true

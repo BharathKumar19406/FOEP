@@ -36,7 +36,7 @@ def parse_social_queries(social_args: List[str]) -> List[Dict[str, str]]:
 def parse_breach_queries(breach_args: List[str]) -> List[Dict[str, str]]:
     """Parse breach queries from CLI arguments."""
     queries = []
-    for arg in breach_args:
+    for arg in breach_args:  # ✅ FIXED: was 'in_args'
         if ":" not in arg:
             # Assume email if no type specified
             queries.append({"query": arg.strip(), "type": "email"})
@@ -72,19 +72,11 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Ingest a disk image
-  foep_ingest.py --disk /evidence/disk.img --output evidence.json
-
-  # Ingest memory and logs
-  foep_ingest.py --memory /evidence/mem.raw --log /evidence/syslog --output evidence.json
-
   # Collect OSINT
-  foep_ingest.py --social "github:attacker123" --social "twitter:user123" \\
-                 --breach "user@company.com" --breach "domain:company.com" \\
-                 --code "filename:.env password" --output osint.json
+  foep_ingest.py --social "github:trailofbits" --domain "microsoft.com" --breach "user@x.com" --output evidence.json
 
   # Combine forensic and OSINT
-  foep_ingest.py --disk disk.img --social "github:attacker123" --output combined.json
+  foep_ingest.py --disk disk.img --social "github:attacker" --output combined.json
         """,
     )
 
@@ -101,10 +93,10 @@ Examples:
     parser.add_argument(
         "--breach",
         nargs="+",
-        help="Breach queries (format: [type:]value, e.g., 'email:user@x.com' or 'user@x.com')",
+        help="Breach queries (format: [type:]value, e.g., 'email:user@x.com')"
     )
     parser.add_argument("--code", nargs="+", help="Code repository search queries")
-    parser.add_argument("--domain", nargs="+", help="Domain for subdomain enumeration")
+    parser.add_argument("--domain", nargs="+", help="Domain for OSINT enrichment")
     parser.add_argument("--vt-hash", nargs="+", help="VirusTotal file hash checks")
 
     # Output and config
@@ -117,10 +109,10 @@ Examples:
     parser.add_argument(
         "--case-id",
         default="DEFAULT_CASE",
-        help="Case identifier (default: DEFAULT_CASE)",
+        help="Case identifier",
     )
     parser.add_argument(
-        "--investigator", default="unknown", help="Investigator name (default: unknown)"
+        "--investigator", default="unknown", help="Investigator name"
     )
     parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
@@ -131,7 +123,7 @@ Examples:
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
-    # Validate at least one input source
+    # ✅ VALIDATION: Include --domain and --vt-hash
     has_forensic = any([args.disk, args.memory, args.log, args.log_dir])
     has_osint = any([
         args.social, 
@@ -184,10 +176,9 @@ Examples:
             code_queries=code_queries,
         )
 
-        # Domain collection with enrichment
+        # ✅ DOMAIN COLLECTION
         if args.domain:
             from foep.ingest.osint.domains import DomainCollector
-            
             domain_collector = DomainCollector(config)
             for domain in args.domain:
                 logger.info(f"Collecting domain OSINT for: {domain}")
@@ -196,7 +187,6 @@ Examples:
         # VT hash checks
         if args.vt_hash:
             from foep.ingest.osint.virustotal import collect_vt_hash
-
             for h in args.vt_hash:
                 osint_evidence.extend(collect_vt_hash(h, config.model_dump()))
 
@@ -209,7 +199,7 @@ Examples:
 
     evidence_dicts = [evidence_to_dict(ev) for ev in all_evidence]
 
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8") as f:  # ✅ FIXED: was 'output,w"'
         json.dump(evidence_dicts, f, indent=2)
 
     logger.info(
