@@ -1,0 +1,43 @@
+[
+  {
+    "evidence_id": "dns::trailofbits.com",
+    "entity_type": "domain",
+    "entity_value": "trailofbits.com",
+    "observation_type": "osint_dns",
+    "source": "dns",
+    "metadata": {
+      "resolved_ip": "172.67.75.24"
+    },
+    "credibility_score": 70,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "vt_domain::trailofbits.com",
+    "entity_type": "domain",
+    "entity_value": "trailofbits.com",
+    "observation_type": "osint_reputation",
+    "source": "virustotal",
+    "metadata": {
+      "malicious_engines": 0,
+      "total_engines": 94,
+      "reputation": "clean"
+    },
+    "credibility_score": 85,
+    "sha256_hash": null
+  },
+  {
+    "evidence_id": "geo_ip::172.67.75.24",
+    "entity_type": "ip_address",
+    "entity_value": "172.67.75.24",
+    "observation_type": "osint_geo",
+    "source": "ipgeolocation",
+    "metadata": {
+      "country": "Canada",
+      "isp": "Cloudflare, Inc.",
+      "latitude": 43.6532,
+      "longitude": -79.3832
+    },
+    "credibility_score": 75,
+    "sha256_hash": null
+  }
+]

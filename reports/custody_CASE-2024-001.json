@@ -1,0 +1,99 @@
+{
+  "custody_header": {
+    "investigator": "unknown",
+    "case_id": "CASE-2024-001",
+    "organization": "Unknown Org",
+    "generated_at": "2026-04-02T12:00:39.359004+00:00",
+    "tool": "FOEP v0.1.0"
+  },
+  "evidence_summary": {
+    "total_items": 10,
+    "sources": [
+      "dns",
+      "entity_extractor",
+      "github",
+      "hibp",
+      "shodan",
+      "virustotal"
+    ],
+    "entity_types": [
+      "domain",
+      "email",
+      "hash",
+      "ip",
+      "username"
+    ]
+  },
+  "evidence_items": [
+    {
+      "evidence_id": "github::user_trailofbits",
+      "entity_type": "username",
+      "source": "github",
+      "credibility_score": 85,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "dns::domain_trailofbits",
+      "entity_type": "domain",
+      "source": "dns",
+      "credibility_score": 85,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "virustotal::hash_example",
+      "entity_type": "hash",
+      "source": "virustotal",
+      "credibility_score": 90,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "shodan::ip_203_0_113_45",
+      "entity_type": "ip",
+      "source": "shodan",
+      "credibility_score": 80,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "breach::email_test",
+      "entity_type": "email",
+      "source": "hibp",
+      "credibility_score": 70,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "extracted::domain::github.com",
+      "entity_type": "domain",
+      "source": "entity_extractor",
+      "credibility_score": 80,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "extracted::domain::trailofbits.com",
+      "entity_type": "domain",
+      "source": "entity_extractor",
+      "credibility_score": 80,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "extracted::ip::172.67.75.24",
+      "entity_type": "ip",
+      "source": "entity_extractor",
+      "credibility_score": 75,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "extracted::ip::203.0.113.45",
+      "entity_type": "ip",
+      "source": "entity_extractor",
+      "credibility_score": 75,
+      "sha256_hash": null
+    },
+    {
+      "evidence_id": "extracted::email::user@example.com",
+      "entity_type": "email",
+      "source": "entity_extractor",
+      "credibility_score": 95,
+      "sha256_hash": null
+    }
+  ]
+}
